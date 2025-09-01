@@ -5,7 +5,7 @@
 
 This project is a semi-complete, from-scratch game editor built in Java using the Swing GUI toolkit. It serves as a practical exercise in applying core software design principles to build a maintainable and feature-rich desktop application.
 
-![Screenshot of the GAGE application UI](placeholder_for_image_url)
+![GAGE Main Interface](https://github.com/UncleBrick/gage-adventure-editor/raw/main/images/GAGE-SCREENSHOT-MAIN-PANEL.PNG)
 ---
 
 ## Key Features ✨
