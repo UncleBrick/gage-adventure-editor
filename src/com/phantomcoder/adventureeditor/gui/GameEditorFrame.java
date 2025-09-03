@@ -3,6 +3,7 @@ package com.phantomcoder.adventureeditor.gui;
 import com.phantomcoder.adventureeditor.config.AppConfig;
 import com.phantomcoder.adventureeditor.constants.FrameConstants;
 import com.phantomcoder.adventureeditor.controller.ActionManager;
+import com.phantomcoder.adventureeditor.controller.ObjectController;
 import com.phantomcoder.adventureeditor.controller.RoomController;
 import com.phantomcoder.adventureeditor.gui.panels.ObjectsPanel;
 import com.phantomcoder.adventureeditor.gui.panels.RoomEditorPanel;
@@ -16,11 +17,11 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import java.awt.BorderLayout;
-import java.awt.Component; // NEW IMPORT
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
-import java.awt.Font;      // NEW IMPORT
-import java.awt.Insets;   // NEW IMPORT
+import java.awt.Font;
+import java.awt.Insets;
 
 @SuppressWarnings("serial")
 public class GameEditorFrame extends JFrame {
@@ -58,7 +59,6 @@ public class GameEditorFrame extends JFrame {
         toolBar.addSeparator();
         toolBar.add(new JButton(actionManager.previewAction));
 
-        // --- NEW: Enlarge Toolbar Buttons ---
         Font toolbarFont = new Font("SansSerif", Font.PLAIN, 12);
         Insets buttonMargin = new Insets(2, 5, 2, 5);
         for (Component c : toolBar.getComponents()) {
@@ -68,12 +68,19 @@ public class GameEditorFrame extends JFrame {
                 button.setMargin(buttonMargin);
             }
         }
-        // --- END NEW ---
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
+        // --- NEW ---
+        // Set the policy to use scroll buttons instead of wrapping tabs
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        // --- END NEW ---
 
         ObjectsPanel objectsPanel = new ObjectsPanel();
+
+        ObjectController objectController = new ObjectController(this, objectsPanel);
+        objectController.wireUpButtons();
+        roomController.setObjectController(objectController);
 
         tabbedPane.addTab("Rooms", roomEditorPanel);
         tabbedPane.addTab("Objects", objectsPanel);
@@ -83,7 +90,6 @@ public class GameEditorFrame extends JFrame {
         tabbedPane.addTab("Commands", new JPanel());
         tabbedPane.addTab("Dialogue", new JPanel());
 
-        roomController.setObjectsPanel(objectsPanel);
         UiHelper.styleTabbedPane(tabbedPane);
 
         JPanel statusBar = new JPanel(new BorderLayout());

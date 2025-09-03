@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public final class FrameConstants {
     // --- Frame Sizes ---
-    public static final int MAIN_FRAME_WIDTH = 800;
+    public static final int MAIN_FRAME_WIDTH = 875;
     public static final int MAIN_FRAME_HEIGHT = 800;
     public static final int PREVIEW_FRAME_WIDTH = 500;
     public static final int PREVIEW_FRAME_HEIGHT = 800;
