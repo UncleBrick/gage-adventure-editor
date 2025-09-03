@@ -13,37 +13,42 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout; // NEW IMPORT
 import java.awt.event.ItemListener;
 
 public class MiddleDataPanel extends JPanel {
 
-    // CORRECTED: 'final' removed from these three variables
     private JTextField roomNameField;
     private JTextField shortDescriptionField;
     private JButton manageAmbianceButton;
-
-    // This can remain final as it's initialized in the constructor
+    private JButton manageTimeStatesButton; // NEW
     private final RoomFlagsPanel roomFlagsPanel;
 
     public MiddleDataPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         JPanel fieldsPanel = createFieldsPanel();
-        roomFlagsPanel = new RoomFlagsPanel(); // Create an instance of our new panel
+        roomFlagsPanel = new RoomFlagsPanel();
+
+        // --- UPDATED SECTION ---
+        JPanel bottomControlsPanel = new JPanel(new GridLayout(1, 2, 5, 0)); // 1 row, 2 cols, 5px hgap
         JPanel ambiancePanel = createAmbiancePanel();
+        JPanel timeStatesPanel = createTimeStatesPanel();
+        bottomControlsPanel.add(ambiancePanel);
+        bottomControlsPanel.add(timeStatesPanel);
+        // --- END UPDATED SECTION ---
 
         // Constrain the height of the fixed-size panels
         int fieldsHeight = fieldsPanel.getPreferredSize().height;
         fieldsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldsHeight));
 
-        int ambianceHeight = ambiancePanel.getPreferredSize().height;
-        ambiancePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ambianceHeight));
+        int controlsHeight = bottomControlsPanel.getPreferredSize().height;
+        bottomControlsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, controlsHeight));
 
         add(fieldsPanel);
-        add(roomFlagsPanel); // Add the new panel
-        add(ambiancePanel);
+        add(roomFlagsPanel);
+        add(bottomControlsPanel); // Add the new container panel
 
-        // Add glue to push everything to the top
         add(Box.createVerticalGlue());
     }
 
@@ -81,10 +86,22 @@ public class MiddleDataPanel extends JPanel {
         return ambiancePanel;
     }
 
+    // --- NEW METHOD ---
+    private JPanel createTimeStatesPanel() {
+        JPanel timeStatesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        timeStatesPanel.setBorder(new TitledBorder("Time States"));
+        manageTimeStatesButton = new JButton("Manage Time States...");
+        // As planned, this button is disabled until the feature is configured
+        manageTimeStatesButton.setEnabled(false);
+        timeStatesPanel.add(manageTimeStatesButton);
+        return timeStatesPanel;
+    }
+    // --- END NEW ---
+
     public void addChangeListener(DocumentListener docListener, ItemListener itemListener) {
         roomNameField.getDocument().addDocumentListener(docListener);
         shortDescriptionField.getDocument().addDocumentListener(docListener);
-        roomFlagsPanel.addChangeListener(itemListener); // Delegate to the child panel
+        roomFlagsPanel.addChangeListener(itemListener);
     }
 
     public RoomFlagsPanel getRoomFlagsPanel() {
@@ -92,6 +109,7 @@ public class MiddleDataPanel extends JPanel {
     }
 
     public JButton getManageAmbianceButton() { return manageAmbianceButton; }
+    public JButton getManageTimeStatesButton() { return manageTimeStatesButton; } // NEW
     public String getRoomName() { return roomNameField.getText(); }
     public void setRoomName(String name) { roomNameField.setText(name); }
     public String getShortDescription() { return shortDescriptionField.getText(); }

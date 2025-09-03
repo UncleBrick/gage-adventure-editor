@@ -14,7 +14,7 @@ public class RoomEditorPanel extends JPanel {
     private final TopMetaDataPanel topMetaDataPanel;
     private final MiddleDataPanel middleDataPanel;
     private final LongDescriptionPanel longDescriptionPanel;
-    private final ActionButtonsPanel actionButtonsPanel;
+    // REMOVED: The ActionButtonsPanel is no longer needed here
     private final RoomController roomController;
 
     public RoomEditorPanel(GameEditorFrame parentFrame) {
@@ -30,18 +30,11 @@ public class RoomEditorPanel extends JPanel {
         IRoomService roomService = new RoomService(middleDataPanel, longDescriptionPanel, topMetaDataPanel);
         roomController = new RoomController(this, parentFrame, roomService);
 
-        // --- THE FIX IS HERE ---
-        // 1. Initialize actionManager BEFORE it is used.
-        // 2. Corrected the typo from getAction-Manager() to getActionManager()
-        ActionManager actionManager = roomController.getActionManager();
+        // --- REMOVED ---
+        // The ActionManager and ActionButtonsPanel are no longer created or added here
+        // --- END REMOVED ---
 
-        actionButtonsPanel = new ActionButtonsPanel(
-                actionManager.newAction,
-                actionManager.loadAction,
-                actionManager.saveAction
-        );
-        // --- END OF FIX ---
-
+        // ASSEMBLE THE UI
         gbc.gridy = 0;
         gbc.weighty = 0.0;
         add(topMetaDataPanel, gbc);
@@ -54,10 +47,7 @@ public class RoomEditorPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
         add(longDescriptionPanel, gbc);
 
-        gbc.gridy = 3;
-        gbc.weighty = 0.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(actionButtonsPanel, gbc);
+        // The ActionButtonsPanel is no longer added to the layout
     }
 
     public TopMetaDataPanel getTopMetaDataPanel() { return topMetaDataPanel; }

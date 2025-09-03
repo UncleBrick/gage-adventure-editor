@@ -6,16 +6,21 @@ import com.phantomcoder.adventureeditor.controller.ActionManager;
 import com.phantomcoder.adventureeditor.controller.RoomController;
 import com.phantomcoder.adventureeditor.gui.panels.ObjectsPanel;
 import com.phantomcoder.adventureeditor.gui.panels.RoomEditorPanel;
-import com.phantomcoder.adventureeditor.util.UiHelper; // NEW IMPORT
+import com.phantomcoder.adventureeditor.util.UiHelper;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import java.awt.BorderLayout;
+import java.awt.Component; // NEW IMPORT
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.awt.Font;      // NEW IMPORT
+import java.awt.Insets;   // NEW IMPORT
 
 @SuppressWarnings("serial")
 public class GameEditorFrame extends JFrame {
@@ -45,8 +50,28 @@ public class GameEditorFrame extends JFrame {
         setJMenuBar(menuBar);
         roomController.setPreviewMenuItem(menuBar.getPreviewPaneItem());
 
+        JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.add(new JButton(actionManager.newAction));
+        toolBar.add(new JButton(actionManager.loadAction));
+        toolBar.add(new JButton(actionManager.saveAction));
+        toolBar.addSeparator();
+        toolBar.add(new JButton(actionManager.previewAction));
+
+        // --- NEW: Enlarge Toolbar Buttons ---
+        Font toolbarFont = new Font("SansSerif", Font.PLAIN, 12);
+        Insets buttonMargin = new Insets(2, 5, 2, 5);
+        for (Component c : toolBar.getComponents()) {
+            if (c instanceof JButton) {
+                JButton button = (JButton) c;
+                button.setFont(toolbarFont);
+                button.setMargin(buttonMargin);
+            }
+        }
+        // --- END NEW ---
+
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setTabPlacement(JTabbedPane.BOTTOM); // Keep placement logic here
+        tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
 
         ObjectsPanel objectsPanel = new ObjectsPanel();
 
@@ -56,10 +81,9 @@ public class GameEditorFrame extends JFrame {
         tabbedPane.addTab("Quests", new JPanel());
         tabbedPane.addTab("Exits", new JPanel());
         tabbedPane.addTab("Commands", new JPanel());
+        tabbedPane.addTab("Dialogue", new JPanel());
 
         roomController.setObjectsPanel(objectsPanel);
-
-        // Call the new, centralized helper method to style the tabs
         UiHelper.styleTabbedPane(tabbedPane);
 
         JPanel statusBar = new JPanel(new BorderLayout());
@@ -67,11 +91,10 @@ public class GameEditorFrame extends JFrame {
         statusLabel = new JLabel(" Ready");
         statusBar.add(statusLabel, BorderLayout.CENTER);
 
+        contentPane.add(toolBar, BorderLayout.NORTH);
         contentPane.add(tabbedPane, BorderLayout.CENTER);
         contentPane.add(statusBar, BorderLayout.SOUTH);
     }
-
-    // The old setUniformTabWidths method is now removed from this file
 
     public void setStatus(String status) {
         statusLabel.setText(" " + status);
