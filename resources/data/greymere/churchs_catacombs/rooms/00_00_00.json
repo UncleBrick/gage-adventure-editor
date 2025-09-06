@@ -1,0 +1,12 @@
+{
+  "locationName": "Greymere",
+  "areaName": "Church's Catacombs",
+  "roomName": "Church's Catacomb Entrance",
+  "shortDescription": "A dark, stone passage descends into a subterranean tomb, steeped in silence and history.",
+  "longDescription": "The entrance to the catacombs is a humble, brick-lined opening, A series of winding, downward-sloping steps cut from soft tufa rock leads into the deep, subterranean cemetery.",
+  "roomTags": [
+    "RESPAWN_POINT",
+    "SAFE_ZONE",
+    "STARTING_POINT"
+  ]
+}
