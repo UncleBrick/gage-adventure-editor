@@ -17,7 +17,14 @@ public class RoomData {
     @SerializedName("roomTags")
     private Set<String> tags;
 
+    // --- Transient data lists for parallel files ---
     private transient List<AmbianceEvent> ambianceEvents;
+    private transient List<ObjectData> objects;
+    private transient List<NpcData> npcs;
+    private transient List<CommandData> commands;
+    private transient List<ExitData> exits;
+    private transient List<MagicData> magic;
+    private transient List<QuestData> quests;
 
     /**
      * Default constructor used by the JSON loader.
@@ -27,6 +34,12 @@ public class RoomData {
         this.areaName = "";
         this.tags = new HashSet<>();
         this.ambianceEvents = new ArrayList<>();
+        this.objects = new ArrayList<>();
+        this.npcs = new ArrayList<>();
+        this.commands = new ArrayList<>();
+        this.exits = new ArrayList<>();
+        this.magic = new ArrayList<>();
+        this.quests = new ArrayList<>();
     }
 
     // --- Getters and Setters ---
@@ -45,4 +58,16 @@ public class RoomData {
     public void setTags(Set<String> tags) { this.tags = tags; }
     public List<AmbianceEvent> getAmbianceEvents() { return ambianceEvents; }
     public void setAmbianceEvents(List<AmbianceEvent> ambianceEvents) { this.ambianceEvents = ambianceEvents; }
+    public List<ObjectData> getObjects() { return objects; }
+    public void setObjects(List<ObjectData> objects) { this.objects = objects; }
+    public List<NpcData> getNpcs() { return npcs; }
+    public void setNpcs(List<NpcData> npcs) { this.npcs = npcs; }
+    public List<CommandData> getCommands() { return commands; }
+    public void setCommands(List<CommandData> commands) { this.commands = commands; }
+    public List<ExitData> getExits() { return exits; }
+    public void setExits(List<ExitData> exits) { this.exits = exits; }
+    public List<MagicData> getMagic() { return magic; }
+    public void setMagic(List<MagicData> magic) { this.magic = magic; }
+    public List<QuestData> getQuests() { return quests; }
+    public void setQuests(List<QuestData> quests) { this.quests = quests; }
 }

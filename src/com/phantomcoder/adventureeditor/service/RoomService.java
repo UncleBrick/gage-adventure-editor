@@ -74,10 +74,17 @@ public class RoomService implements IRoomService {
 
     @Override
     public void loadRoomAndPopulateUI(Path filePath) throws IOException {
+        // Corrected logic: assign the path before trying to load the data.
+        this.savedRoomFilePath = filePath;
+
+        // Attempt to load the room data.
         RoomData loadedRoom = persistenceService.loadRoomData(filePath);
-        if (loadedRoom != null) {
-            this.currentRoom = loadedRoom;
-            this.savedRoomFilePath = filePath;
+
+        // Explicitly set the currentRoom variable.
+        this.currentRoom = loadedRoom;
+
+        // Populate the UI with the data from the currentRoom variable.
+        if (this.currentRoom != null) {
             populateUIFromCurrentRoom();
         }
     }
@@ -100,15 +107,40 @@ public class RoomService implements IRoomService {
         if (currentRoom == null) {
             return;
         }
+
+        // Debugging print statements to check the values of each field
+        System.out.println("--- Values in RoomData object before UI population ---");
+        System.out.println("Location Name: " + currentRoom.getLocationName());
+        System.out.println("Area Name: " + currentRoom.getAreaName());
+        System.out.println("Room Name: " + currentRoom.getRoomName());
+        System.out.println("Short Description: " + currentRoom.getShortDescription());
+        System.out.println("Long Description: " + currentRoom.getLongDescription());
+        System.out.println("Tags: " + currentRoom.getTags());
+        System.out.println("------------------------------------");
+
+        // Set values for TopMetaDataPanel
+        System.out.println("Setting Location Name in UI: " + currentRoom.getLocationName());
         topMetaDataPanel.setLocationName(currentRoom.getLocationName());
+
+        System.out.println("Setting Area Name in UI: " + currentRoom.getAreaName());
         topMetaDataPanel.setAreaName(currentRoom.getAreaName());
 
         String fileName = (savedRoomFilePath != null) ? savedRoomFilePath.getFileName().toString() : "";
+        System.out.println("Setting File Name in UI: " + fileName);
         topMetaDataPanel.setFileName(fileName);
 
+        // Set values for MiddleDataPanel
+        System.out.println("Setting Room Name in UI: " + currentRoom.getRoomName());
         middleDataPanel.setRoomName(currentRoom.getRoomName());
+
+        System.out.println("Setting Short Description in UI: " + currentRoom.getShortDescription());
         middleDataPanel.setShortDescription(currentRoom.getShortDescription());
+
+        System.out.println("Setting Tags in UI: " + currentRoom.getTags());
         middleDataPanel.getRoomFlagsPanel().setSelectedTags(currentRoom.getTags());
+
+        // Set value for LongDescriptionPanel
+        System.out.println("Setting Long Description in UI: " + currentRoom.getLongDescription());
         longDescriptionPanel.setLongDescription(currentRoom.getLongDescription());
     }
 }

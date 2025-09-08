@@ -50,7 +50,7 @@ public class DirtyStateManager {
     public boolean isDirty(RoomData currentRoomData) {
         // If there's no snapshot, the data can't be dirty relative to it.
         if (snapshot == null) {
-            return true; // false;
+            return false;
         }
 
         // Convert both the snapshot and the current object to JSON strings.

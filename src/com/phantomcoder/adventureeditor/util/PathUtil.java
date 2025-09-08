@@ -63,9 +63,6 @@ public final class PathUtil {
 
         // 3. Replace the directory segment and return the new Path
         String targetPathStr = sourcePathStr.replace(sourceDirSegment, targetDirSegment);
-        System.out.println("-------------------------[getParallelPath]------------------------");
-        System.out.println(targetPathStr);
-        System.out.println("------------------------------------------------------------------");
         return Paths.get(targetPathStr);
     }
 }

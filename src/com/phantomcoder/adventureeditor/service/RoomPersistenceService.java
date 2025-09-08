@@ -2,8 +2,7 @@ package com.phantomcoder.adventureeditor.service;
 
 import com.google.gson.reflect.TypeToken;
 import com.phantomcoder.adventureeditor.constants.DataConstants;
-import com.phantomcoder.adventureeditor.model.AmbianceEvent;
-import com.phantomcoder.adventureeditor.model.RoomData;
+import com.phantomcoder.adventureeditor.model.*;
 import com.phantomcoder.adventureeditor.persistence.JsonDataLoader;
 import com.phantomcoder.adventureeditor.persistence.JsonDataSaver;
 import com.phantomcoder.adventureeditor.util.PathUtil;
@@ -17,75 +16,112 @@ import java.util.List;
 
 public class RoomPersistenceService {
 
-    /**
-     * Saves the core room data and its parallel ambiance data to separate JSON files.
-     *
-     * @param roomData The RoomData object to save.
-     * @param filePath The absolute path to the target room file.
-     * @throws IOException If an I/O error occurs.
-     */
     public void saveRoomData(RoomData roomData, Path filePath) throws IOException {
-        // The JsonDataSaver expects a path relative to the 'resources' directory.
         Path resourcesDir = PathUtil.getAppBaseDirectory().resolve(DataConstants.RESOURCES_DIRECTORY_NAME);
         String relativeRoomPath = resourcesDir.relativize(filePath).toString();
 
-        // 1. Save the main room file.
-        JsonDataSaver.saveDataToJson(roomData, relativeRoomPath);
+        String roomFileType = DataConstants.DATA_FILE_TYPES.get("ROOMS");
+        JsonDataSaver.saveDataToJson(roomData, relativeRoomPath, roomFileType);
 
-        // 2. Check if there is ambiance data to save.
-        if (roomData.getAmbianceEvents() != null && !roomData.getAmbianceEvents().isEmpty()) {
-            // 3. Get the parallel path using the new dynamic utility.
-            Path ambiancePath = PathUtil.getParallelPath(filePath, "ROOMS", "AMBIANCES");
-            String relativeAmbiancePath = resourcesDir.relativize(ambiancePath).toString();
-            JsonDataSaver.saveDataToJson(roomData.getAmbianceEvents(), relativeAmbiancePath);
-        }
+        saveAllParallelData(roomData, filePath, resourcesDir);
     }
 
-    /**
-     * Loads the core room data and attempts to load its parallel ambiance data.
-     *
-     * @param filePath The absolute path to the room file to load.
-     * @return A populated RoomData object, or null if the room file doesn't exist.
-     * @throws IOException If a file reading error occurs.
-     */
     public RoomData loadRoomData(Path filePath) throws IOException {
-        // 1. Load the main room data.
-        RoomData roomData = JsonDataLoader.loadRoomFromJson(filePath.toString());
+        RoomData roomData = JsonDataLoader.loadDataFromJson(filePath.toString(), RoomData.class);
 
-        // If the room file doesn't exist, exit early.
         if (roomData == null) {
             return null;
         }
 
-        // 2. Attempt to load the parallel ambiance data.
-        Path ambiancePath = PathUtil.getParallelPath(filePath, "ROOMS", "AMBIANCES");
-        if (Files.exists(ambiancePath)) {
-            Type listType = new TypeToken<ArrayList<AmbianceEvent>>() {}.getType();
-            List<AmbianceEvent> events = JsonDataLoader.loadDataFromJson(ambiancePath.toString(), listType);
-
-            if (events != null) {
-                roomData.setAmbianceEvents(events);
-            }
-        }
+        loadAllParallelData(roomData, filePath);
 
         return roomData;
     }
 
-    /**
-     * Constructs the full, absolute path for a room file based on its metadata.
-     *
-     * @param location The location name (e.g., Dungeon of Despair).
-     * @param area     The area name (e.g., Level 1).
-     * @param fileName The simple file name (e.g., throne_room).
-     * @return The absolute Path object for the room file.
-     */
+    private void saveAllParallelData(RoomData roomData, Path roomFilePath, Path resourcesDir) throws IOException {
+        for (String key : DataConstants.DATA_DIRECTORIES.keySet()) {
+            if (key.equals("ROOMS")) {
+                continue;
+            }
+
+            List<?> dataList = getListFromRoomData(roomData, key);
+
+            if (dataList != null && !dataList.isEmpty()) {
+                Path parallelPath = PathUtil.getParallelPath(roomFilePath, "ROOMS", key);
+                String relativeParallelPath = resourcesDir.relativize(parallelPath).toString();
+                String fileType = DataConstants.DATA_FILE_TYPES.get(key);
+                JsonDataSaver.saveDataToJson(dataList, relativeParallelPath, fileType);
+            }
+        }
+    }
+
+    private void loadAllParallelData(RoomData roomData, Path roomFilePath) throws IOException {
+        for (String key : DataConstants.DATA_DIRECTORIES.keySet()) {
+            if (key.equals("ROOMS")) {
+                continue;
+            }
+
+            Path parallelPath = PathUtil.getParallelPath(roomFilePath, "ROOMS", key);
+
+            if (Files.exists(parallelPath)) {
+                Type listType = getListTypeToken(key);
+                if (listType == null) continue;
+
+                List<?> loadedList = JsonDataLoader.loadDataFromJson(parallelPath.toString(), listType);
+                if (loadedList != null) {
+                    setListInRoomData(roomData, key, loadedList);
+                }
+            }
+        }
+    }
+
+    private List<?> getListFromRoomData(RoomData roomData, String key) {
+        return switch (key) {
+            case "AMBIANCES" -> roomData.getAmbianceEvents();
+            case "OBJECTS" -> roomData.getObjects();
+            case "NPCS" -> roomData.getNpcs();
+            case "COMMANDS" -> roomData.getCommands();
+            case "EXITS" -> roomData.getExits();
+            case "MAGIC" -> roomData.getMagic();
+            case "QUESTS" -> roomData.getQuests();
+            default -> null;
+        };
+    }
+
+    private void setListInRoomData(RoomData roomData, String key, List<?> list) {
+        switch (key) {
+            case "AMBIANCES" -> roomData.setAmbianceEvents((List<AmbianceEvent>) list);
+            case "OBJECTS" -> roomData.setObjects((List<ObjectData>) list);
+            case "NPCS" -> roomData.setNpcs((List<NpcData>) list);
+            case "COMMANDS" -> roomData.setCommands((List<CommandData>) list);
+            case "EXITS" -> roomData.setExits((List<ExitData>) list);
+            case "MAGIC" -> roomData.setMagic((List<MagicData>) list);
+            case "QUESTS" -> roomData.setQuests((List<QuestData>) list);
+        }
+    }
+
+    private Type getListTypeToken(String key) {
+        return switch (key) {
+            case "AMBIANCES" -> new TypeToken<ArrayList<AmbianceEvent>>() {}.getType();
+            case "OBJECTS" -> new TypeToken<ArrayList<ObjectData>>() {}.getType();
+            case "NPCS" -> new TypeToken<ArrayList<NpcData>>() {}.getType();
+            case "COMMANDS" -> new TypeToken<ArrayList<CommandData>>() {}.getType();
+            case "EXITS" -> new TypeToken<ArrayList<ExitData>>() {}.getType();
+            case "MAGIC" -> new TypeToken<ArrayList<MagicData>>() {}.getType();
+            case "QUESTS" -> new TypeToken<ArrayList<QuestData>>() {}.getType();
+            default -> null;
+        };
+    }
+
     public Path getRoomPath(String location, String area, String fileName) {
         String safeLocation = PathUtil.toSafeFileName(location);
         String safeArea = PathUtil.toSafeFileName(area);
-        String safeFileName = PathUtil.toSafeFileName(fileName);
-        String jsonFileName = safeFileName.endsWith(".json") ? safeFileName : safeFileName + ".json";
+        String nameWithoutExtension = fileName.endsWith(".json")
+                ? fileName.substring(0, fileName.length() - ".json".length())
+                : fileName;
+        String safeFileName = PathUtil.toSafeFileName(nameWithoutExtension);
+        String jsonFileName = safeFileName + ".json";
 
-        // CORRECTED PATH ORDER: data/[location]/[area]/[datatype]/
         return PathUtil.getAppBaseDirectory()
                 .resolve(DataConstants.BASE_DATA_PATH)
                 .resolve(safeLocation)

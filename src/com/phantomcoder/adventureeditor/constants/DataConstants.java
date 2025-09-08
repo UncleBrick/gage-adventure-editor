@@ -4,17 +4,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Defines constant values for data paths and directory names used throughout the application.
- * This centralization prevents the use of "magic strings" and provides a scalable way
- * to manage data directories.
- */
 public final class DataConstants {
 
-    /**
-     * Private constructor to prevent instantiation of this utility class.
-     */
     private DataConstants() {}
+
+    // --- Wrapper Metadata ---
+    public static final String FILE_DATA_WRAPPER_VERSION = "1.0";
 
     // --- Base Path Constants ---
     public static final String RESOURCES_DIRECTORY_NAME = "resources";
@@ -31,10 +26,6 @@ public final class DataConstants {
     public static final String MAGIC_DIRECTORY_NAME = "magic";
     public static final String QUESTS_DIRECTORY_NAME = "quests";
 
-    /**
-     * A map that associates data type keys with their corresponding directory name constants.
-     * This allows for dynamic handling of game data directories.
-     */
     public static final Map<String, String> DATA_DIRECTORIES;
     static {
         Map<String, String> map = new LinkedHashMap<>();
@@ -47,5 +38,19 @@ public final class DataConstants {
         map.put("MAGIC", MAGIC_DIRECTORY_NAME);
         map.put("QUESTS", QUESTS_DIRECTORY_NAME);
         DATA_DIRECTORIES = Collections.unmodifiableMap(map);
+    }
+
+    public static final Map<String, String> DATA_FILE_TYPES;
+    static {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("ROOMS", "Room Data");
+        map.put("AMBIANCES", "Ambiance Data");
+        map.put("OBJECTS", "Object Data");
+        map.put("NPCS", "NPC Data");
+        map.put("COMMANDS", "Command Data");
+        map.put("EXITS", "Exit Data");
+        map.put("MAGIC", "Magic Data");
+        map.put("QUESTS", "Quest Data");
+        DATA_FILE_TYPES = Collections.unmodifiableMap(map);
     }
 }

@@ -2,6 +2,7 @@ package com.phantomcoder.adventureeditor.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
 import com.phantomcoder.adventureeditor.model.RoomData;
 import java.io.IOException;
@@ -17,17 +18,29 @@ public class JsonDataLoader {
 
     private JsonDataLoader() {}
 
+    /**
+     * Loads a JSON file that uses the FileDataWrapper format, unwraps it, and returns the core data.
+     * @param filePath The absolute path to the JSON file.
+     * @param typeOfT  The specific Type of the data to be loaded (e.g., RoomData.class or a TypeToken for a List).
+     * @param <T>      The generic type of the data.
+     * @return The deserialized data object of type T, or null if the file doesn't exist.
+     * @throws IOException If a file reading error occurs.
+     */
     public static <T> T loadDataFromJson(String filePath, Type typeOfT) throws IOException {
-        Path fullPath = Paths.get(filePath);
+        // Create the specific generic type for FileDataWrapper<T>
+        Type wrapperType = TypeToken.getParameterized(FileDataWrapper.class, typeOfT).getType();
 
-        if (!Files.exists(fullPath)) {
+        // Load the wrapper object from the JSON file.
+        FileDataWrapper<T> wrapper = loadDataWrapper(filePath, wrapperType);
+
+        if (wrapper == null) {
             return null;
         }
 
-        String jsonContent = Files.readString(fullPath);
-        T result = GSON.fromJson(jsonContent, typeOfT);
+        // Extract the core data from the wrapper.
+        T result = wrapper.getData();
 
-        // FIX: Add backward-compatibility logic for AmbianceEvent GUIDs.
+        // Preserve backward-compatibility logic for older AmbianceEvent formats.
         if (result instanceof RoomData) {
             RoomData roomData = (RoomData) result;
             if (roomData.getAmbianceEvents() != null) {
@@ -42,7 +55,17 @@ public class JsonDataLoader {
         return result;
     }
 
-    public static RoomData loadRoomFromJson(String filePath) throws IOException {
-        return loadDataFromJson(filePath, RoomData.class);
+    /**
+     * A private helper that reads a JSON file and deserializes it into a FileDataWrapper of a given type.
+     */
+    private static <T> FileDataWrapper<T> loadDataWrapper(String filePath, Type wrapperTypeOfT) throws IOException {
+        Path fullPath = Paths.get(filePath);
+
+        if (!Files.exists(fullPath)) {
+            return null;
+        }
+
+        String jsonContent = Files.readString(fullPath);
+        return GSON.fromJson(jsonContent, wrapperTypeOfT);
     }
 }

@@ -20,6 +20,7 @@ public class ActionManager {
     public final AbstractAction helpAction;
     public final AbstractAction aboutAction;
     public final AbstractAction configureAction;
+    public final AbstractAction manageAmbianceAction;
 
     public ActionManager(RoomController controller, MainApplicationFrame mainFrame) {
         this.controller = controller;
@@ -52,6 +53,13 @@ public class ActionManager {
         previewAction = new AbstractAction("Preview Pane", UiHelper.loadMenuIcon("menu/preview_lg.png")) {
             @Override public void actionPerformed(ActionEvent e) {
                 mainFrame.togglePreviewPane();
+            }
+        };
+
+        manageAmbianceAction = new AbstractAction("Manage Ambient Text...") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.handleManageAmbianceAction();
             }
         };
 

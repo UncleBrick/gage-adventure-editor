@@ -1,6 +1,7 @@
 package com.phantomcoder.adventureeditor.controller;
 
 import com.phantomcoder.adventureeditor.gui.MainApplicationFrame;
+import com.phantomcoder.adventureeditor.gui.dialogs.AmbianceManagerDialog;
 import com.phantomcoder.adventureeditor.gui.panels.RoomEditorPanel;
 import com.phantomcoder.adventureeditor.gui.panels.TopMetaDataPanel;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
@@ -23,9 +24,11 @@ public class RoomController {
     private final ActionManager actionManager;
     private final IRoomService roomService;
     private final DirtyStateManager dirtyStateManager;
+    private final AmbianceManagerDialog ambianceManagerDialog;
     private ObjectController objectController;
     private JCheckBoxMenuItem previewMenuItem;
     private boolean isRoomDirty = false;
+    private boolean isPopulatingForm = false;
 
     public RoomController(RoomEditorPanel roomEditorPanel, MainApplicationFrame parentFrame, IRoomService roomService) {
         this.roomEditorPanel = roomEditorPanel;
@@ -33,8 +36,10 @@ public class RoomController {
         this.actionManager = new ActionManager(this, parentFrame);
         this.roomService = roomService;
         this.dirtyStateManager = new DirtyStateManager();
+        this.ambianceManagerDialog = new AmbianceManagerDialog(parentFrame, this);
 
         attachChangeListeners();
+        wireUpButtons();
         handleAddRoomAction();
     }
 
@@ -46,7 +51,14 @@ public class RoomController {
         DirtyStateListener.applyTo(this.roomEditorPanel, this::onFormChanged);
     }
 
+    private void wireUpButtons() {
+        roomEditorPanel.getMiddleDataPanel().getManageAmbianceButton().addActionListener(e -> handleManageAmbianceAction());
+    }
+
     private void onFormChanged() {
+        if (isPopulatingForm) {
+            return;
+        }
         roomService.gatherDataFromUI();
         boolean dirty = dirtyStateManager.isDirty(roomService.getCurrentRoom());
         setRoomDirty(dirty);
@@ -76,7 +88,11 @@ public class RoomController {
             // TODO: Implement "Warn on close" logic
         }
         roomService.createAndSetCurrentRoom();
+
+        isPopulatingForm = true;
         roomService.populateUIFromCurrentRoom();
+        isPopulatingForm = false;
+
         dirtyStateManager.takeSnapshot(roomService.getCurrentRoom());
         setRoomDirty(false);
         parentFrame.setStatus("New room created. Fill in the details to save.");
@@ -88,13 +104,22 @@ public class RoomController {
         }
 
         Optional<Path> result = RoomFileChooser.showLoadRoomDialog(parentFrame);
+
         if (result.isPresent()) {
+            Path selectedPath = result.get();
             try {
-                roomService.loadRoomAndPopulateUI(result.get());
+                isPopulatingForm = true;
+                roomService.loadRoomAndPopulateUI(selectedPath);
+                isPopulatingForm = false;
+
                 RoomData currentRoom = roomService.getCurrentRoom();
-                dirtyStateManager.takeSnapshot(currentRoom);
-                setRoomDirty(false);
-                parentFrame.setStatus("Successfully loaded room: " + result.get().getFileName());
+                if (currentRoom != null) {
+                    dirtyStateManager.takeSnapshot(currentRoom);
+                    setRoomDirty(false);
+                    parentFrame.setStatus("Successfully loaded room: " + selectedPath.getFileName());
+                } else {
+                    UiHelper.showErrorDialog(parentFrame, "Load Error", "Failed to load room from file. The file may be empty or malformed.");
+                }
             } catch (IOException ex) {
                 UiHelper.showErrorDialog(parentFrame, "Load Error", "Failed to load room from file: " + ex.getMessage());
             }
@@ -114,7 +139,8 @@ public class RoomController {
     }
 
     public void handleManageAmbianceAction() {
-        // This logic will be implemented later
+        ambianceManagerDialog.displayEvents(roomService.getCurrentAmbianceEvents());
+        ambianceManagerDialog.setVisible(true);
     }
 
     public void updateAmbianceData(List<AmbianceEvent> events) {
