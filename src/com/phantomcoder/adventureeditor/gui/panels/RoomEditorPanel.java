@@ -6,7 +6,6 @@ import com.phantomcoder.adventureeditor.gui.MainApplicationFrame;
 import com.phantomcoder.adventureeditor.service.IRoomService;
 import com.phantomcoder.adventureeditor.service.RoomService;
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
@@ -34,10 +33,8 @@ public class RoomEditorPanel extends JPanel {
 
         add(splitPane, BorderLayout.CENTER);
 
-        EventQueue.invokeLater(() -> splitPane.setDividerLocation(upperPanel.getPreferredSize().height));
-
-        // FIX: Added 'this' as the first argument to match the constructor.
-        IRoomService roomService = new RoomService(this, middleDataPanel, longDescriptionPanel, topMetaDataPanel);
+        // This is the corrected line
+        IRoomService roomService = new RoomService(topMetaDataPanel, middleDataPanel, longDescriptionPanel);
         this.roomController = new RoomController(this, parentFrame, roomService);
     }
 

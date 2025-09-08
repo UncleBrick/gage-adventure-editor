@@ -14,12 +14,10 @@ public class RoomData {
     private String shortDescription;
     private String longDescription;
 
-    // This annotation tells the JSON parser to use the key "roomTags"
-    // for this field, which matches your JSON file and naming convention.
     @SerializedName("roomTags")
     private Set<String> tags;
 
-    private List<AmbianceEvent> ambianceEvents;
+    private transient List<AmbianceEvent> ambianceEvents;
 
     /**
      * Default constructor used by the JSON loader.
@@ -29,22 +27,6 @@ public class RoomData {
         this.areaName = "";
         this.tags = new HashSet<>();
         this.ambianceEvents = new ArrayList<>();
-    }
-
-    /**
-     * FIX: Added the parameterized constructor required by your RoomCreationService.
-     * Note: The 'fileName' parameter from your original service was removed,
-     * as the RoomData model doesn't store the file name itself.
-     */
-    public RoomData(String locationName, String areaName, String roomName,
-                    String shortDescription, String longDescription, Set<String> tags) {
-        this.locationName = locationName;
-        this.areaName = areaName;
-        this.roomName = roomName;
-        this.shortDescription = shortDescription;
-        this.longDescription = longDescription;
-        this.tags = tags;
-        this.ambianceEvents = new ArrayList<>(); // Initialize to an empty list
     }
 
     // --- Getters and Setters ---

@@ -3,6 +3,7 @@ package com.phantomcoder.adventureeditor.controller;
 import com.phantomcoder.adventureeditor.gui.MainApplicationFrame;
 import com.phantomcoder.adventureeditor.util.UiHelper;
 import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 
 public class ActionManager {
@@ -55,15 +56,30 @@ public class ActionManager {
         };
 
         helpAction = new AbstractAction("Help", UiHelper.loadMenuIcon("menu/help_lg.png")) {
-            @Override public void actionPerformed(ActionEvent e) { controller.handleHelpAction(); }
+            @Override public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Help documentation is not yet available.",
+                        "Help",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         };
 
         aboutAction = new AbstractAction("About", UiHelper.loadMenuIcon("menu/about_lg.png")) {
-            @Override public void actionPerformed(ActionEvent e) { controller.handleAboutAction(); }
+            @Override public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "GAGE - Generic Adventure Game Editor\nVersion 1.0 (MDI Refactor)",
+                        "About GAGE",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         };
 
         configureAction = new AbstractAction("Game Configuration...", UiHelper.loadMenuIcon("menu/configure_lg.png")) {
-            @Override public void actionPerformed(ActionEvent e) { controller.handleConfigureAction(); }
+            @Override public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Game Configuration is not yet implemented.",
+                        "Coming Soon",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         };
     }
 }

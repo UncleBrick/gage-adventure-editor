@@ -9,7 +9,12 @@ import com.phantomcoder.adventureeditor.controller.RoomController;
 import com.phantomcoder.adventureeditor.gui.panels.EditorPanel;
 import com.phantomcoder.adventureeditor.gui.panels.PreviewPanel;
 import com.phantomcoder.adventureeditor.model.RoomData;
-
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,12 +23,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class MainApplicationFrame extends JFrame {
 
@@ -44,12 +43,25 @@ public class MainApplicationFrame extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
+        // --- CORRECTED ORDER ---
+        // 1. Create the status bar and label first, so they exist before any controller tries to use them.
+        JPanel statusBar = new JPanel(new BorderLayout());
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        statusLabel = new JLabel(" Ready");
+        Font statusFont = new Font(FontConstants.DEFAULT_FONT_NAME, FontConstants.PLAIN_STYLE, FontConstants.STATUS_BAR_FONT_SIZE);
+        statusLabel.setFont(statusFont);
+        statusBar.add(statusLabel, BorderLayout.CENTER);
+        add(statusBar, BorderLayout.SOUTH);
+
+        // 2. Now, create the editor panel, which initializes the controllers.
         editorPanel = new EditorPanel(this);
         previewPanel = new PreviewPanel();
 
+        // 3. Get the controllers and action manager that were just created.
         RoomController roomController = editorPanel.getRoomController();
         ActionManager actionManager = roomController.getActionManager();
 
+        // 4. Create the menu bar and toolbar, which depend on the action manager.
         EditorMenuBar menuBar = new EditorMenuBar(roomController, actionManager);
         setJMenuBar(menuBar);
         roomController.setPreviewMenuItem(menuBar.getPreviewPaneItem());
@@ -71,21 +83,14 @@ public class MainApplicationFrame extends JFrame {
         }
         add(toolBar, BorderLayout.NORTH);
 
-        JPanel statusBar = new JPanel(new BorderLayout());
-        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
-        statusLabel = new JLabel(" Ready");
-        Font statusFont = new Font(FontConstants.DEFAULT_FONT_NAME, FontConstants.PLAIN_STYLE, FontConstants.STATUS_BAR_FONT_SIZE);
-        statusLabel.setFont(statusFont);
-        statusBar.add(statusLabel, BorderLayout.CENTER);
-        add(statusBar, BorderLayout.SOUTH);
-
+        // 5. Create the main split pane and add it to the frame.
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, previewPanel);
         mainSplitPane.setResizeWeight(0.75);
         mainSplitPane.setOneTouchExpandable(true);
         mainSplitPane.setDividerSize(8);
-
         add(mainSplitPane, BorderLayout.CENTER);
 
+        // 6. Add window listener to hide the preview pane on first launch.
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
@@ -95,11 +100,6 @@ public class MainApplicationFrame extends JFrame {
         });
     }
 
-    /**
-     * FIX: New method to allow controllers to update the preview pane's content.
-     * @param room The RoomData to display.
-     * @param fileName The file name of the room.
-     */
     public void updatePreview(RoomData room, String fileName) {
         if (previewPanel != null) {
             previewPanel.getRoomPreviewPanel().updateRoomPreview(room, fileName);
@@ -124,6 +124,7 @@ public class MainApplicationFrame extends JFrame {
     }
 
     public void setStatus(String status) {
+        // This call is now safe because statusLabel is guaranteed to exist.
         statusLabel.setText(" " + status);
     }
 

@@ -26,7 +26,7 @@ public final class LayoutConstants {
     // --- FIX: New constants to eliminate magic numbers ---
 
     // For the vertical JSplitPane in the RoomEditorPanel
-    public static final double ROOM_EDITOR_SPLIT_PANE_RESIZE_WEIGHT = .7;
+    public static final double ROOM_EDITOR_SPLIT_PANE_RESIZE_WEIGHT = .005;
     public static final double ROOM_EDITOR_DIVIDER_LOCATION = .5;
 
     // For the GridLayout in the MiddleDataPanel

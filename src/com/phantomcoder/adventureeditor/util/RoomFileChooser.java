@@ -17,11 +17,10 @@ public class RoomFileChooser {
     private static final String DIALOG_TITLE = "Load Room File";
 
     public static Optional<Path> showLoadRoomDialog(JFrame parent) {
-
         Path startPath;
 
         try {
-            // FIX: The path now resolves to the 'data' directory instead of 'rooms'.
+            // The path now resolves to the 'data' directory instead of 'rooms'.
             startPath = PathUtil.getAppBaseDirectory()
                     .resolve(DataConstants.RESOURCES_DIRECTORY_NAME)
                     .resolve(DataConstants.DATA_DIRECTORY_NAME);
@@ -40,25 +39,35 @@ public class RoomFileChooser {
         fileChooser.setFileFilter(JSON_FILE_FILTER);
         fileChooser.setAcceptAllFileFilterUsed(false);
 
-        int result = fileChooser.showOpenDialog(parent);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            Path selectedPath = fileChooser.getSelectedFile().toPath();
+        // A loop to ensure the dialog stays open until a valid file is selected or the user cancels.
+        while (true) {
+            int result = fileChooser.showOpenDialog(parent);
 
-            if (!JSON_FILE_FILTER.accept(selectedPath.toFile())) {
-                UiHelper.showErrorDialog(parent, "Invalid File Type", "Please select a JSON File (*.json).");
+            // Check if the user approved the selection
+            if (result == JFileChooser.APPROVE_OPTION) {
+                Path selectedPath = fileChooser.getSelectedFile().toPath();
+                File selectedFile = selectedPath.toFile();
+
+                // Validation 1: Check the file extension
+                if (!JSON_FILE_FILTER.accept(selectedFile)) {
+                    UiHelper.showErrorDialog(parent, "Invalid File Type", "Please select a JSON File (*.json).");
+                    continue; // Loop again, keeping the dialog open
+                }
+
+                // Validation 2: Check the parent directory name
+                Path parentDir = selectedPath.getParent();
+                if (parentDir == null || !parentDir.getFileName().toString().equals(DataConstants.ROOMS_DIRECTORY_NAME)) {
+                    String message = "Please select a valid room file from within a '" + DataConstants.ROOMS_DIRECTORY_NAME + "' folder.";
+                    UiHelper.showErrorDialog(parent, "Invalid File Location", message);
+                    continue; // Loop again
+                }
+
+                // If both checks pass, return the valid path and exit the loop
+                return Optional.of(selectedPath);
+            } else {
+                // The user canceled the dialog, so we return an empty Optional and exit
                 return Optional.empty();
             }
-
-            Path parentDir = selectedPath.getParent();
-            if (parentDir == null || !parentDir.getFileName().toString().equals(DataConstants.ROOMS_DIRECTORY_NAME)) {
-                String message = "Please select a valid room file from within a '" + DataConstants.ROOMS_DIRECTORY_NAME + "' folder.";
-                UiHelper.showErrorDialog(parent, "Invalid File Location", message);
-                return Optional.empty();
-            }
-
-            return Optional.of(selectedPath);
         }
-
-        return Optional.empty();
     }
 }

@@ -2,6 +2,7 @@ package com.phantomcoder.adventureeditor.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.phantomcoder.adventureeditor.constants.DataConstants;
 import com.phantomcoder.adventureeditor.util.PathUtil;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +24,7 @@ public class JsonDataSaver {
      * @throws IOException If an I/O error occurs.
      */
     public static void saveDataToJson(Object dataToSave, String partialPath) throws IOException {
-        Path fullPath = PathUtil.getAppBaseDirectory().resolve("resources").resolve(partialPath);
+        Path fullPath = PathUtil.getAppBaseDirectory().resolve(DataConstants.RESOURCES_DIRECTORY_NAME).resolve(partialPath);
 
         Path parentDir = fullPath.getParent();
         if (parentDir != null && !Files.exists(parentDir)) {

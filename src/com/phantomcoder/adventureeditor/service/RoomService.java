@@ -1,16 +1,15 @@
 package com.phantomcoder.adventureeditor.service;
 
+import com.phantomcoder.adventureeditor.config.AppConfig;
 import com.phantomcoder.adventureeditor.gui.panels.LongDescriptionPanel;
 import com.phantomcoder.adventureeditor.gui.panels.MiddleDataPanel;
-import com.phantomcoder.adventureeditor.gui.panels.RoomEditorPanel;
 import com.phantomcoder.adventureeditor.gui.panels.TopMetaDataPanel;
-import com.phantomcoder.adventureeditor.model.AmbianceEvent;
 import com.phantomcoder.adventureeditor.model.RoomData;
-
+import com.phantomcoder.adventureeditor.model.AmbianceEvent;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class RoomService implements IRoomService {
 
@@ -21,56 +20,36 @@ public class RoomService implements IRoomService {
     private final LongDescriptionPanel longDescriptionPanel;
     private final RoomPersistenceService persistenceService;
 
-    public RoomService(RoomEditorPanel roomEditorPanel, MiddleDataPanel middleDataPanel,
-                       LongDescriptionPanel longDescriptionPanel, TopMetaDataPanel topMetaDataPanel) {
+    public RoomService(TopMetaDataPanel topMetaDataPanel, MiddleDataPanel middleDataPanel, LongDescriptionPanel longDescriptionPanel) {
         this.topMetaDataPanel = topMetaDataPanel;
         this.middleDataPanel = middleDataPanel;
         this.longDescriptionPanel = longDescriptionPanel;
         this.persistenceService = new RoomPersistenceService();
-        createAndSetCurrentRoom();
     }
 
     @Override
-    public void loadRoomAndPopulateUI(Path filePath) throws IOException {
-        RoomData roomData = persistenceService.loadRoomData(filePath);
+    public RoomData getCurrentRoom() {
+        return currentRoom;
+    }
 
-        if (roomData.getAmbianceEvents() != null) {
-            for (AmbianceEvent event : roomData.getAmbianceEvents()) {
-                if (event.getGuid() == null || event.getGuid().isEmpty()) {
-                    event.setGuid(UUID.randomUUID().toString());
-                }
-            }
+    @Override
+    public Path getSavedRoomFilePath() {
+        return savedRoomFilePath;
+    }
+
+    @Override
+    public List<AmbianceEvent> getCurrentAmbianceEvents() {
+        if (currentRoom == null || currentRoom.getAmbianceEvents() == null) {
+            return Collections.emptyList();
         }
-
-        this.currentRoom = roomData;
-        this.savedRoomFilePath = filePath;
-
-        topMetaDataPanel.setLocationName(currentRoom.getLocationName());
-        topMetaDataPanel.setAreaName(currentRoom.getAreaName());
-        topMetaDataPanel.setFileName(filePath.getFileName().toString());
-        middleDataPanel.setRoomName(currentRoom.getRoomName());
-        middleDataPanel.setShortDescription(currentRoom.getShortDescription());
-        middleDataPanel.getRoomFlagsPanel().setSelectedTags(currentRoom.getTags());
-        longDescriptionPanel.setLongDescription(currentRoom.getLongDescription());
+        return currentRoom.getAmbianceEvents();
     }
 
     @Override
-    public void saveCurrentRoom() throws IOException {
-        currentRoom.setLocationName(topMetaDataPanel.getLocationName());
-        currentRoom.setAreaName(topMetaDataPanel.getAreaName());
-        currentRoom.setRoomName(middleDataPanel.getRoomName());
-        currentRoom.setShortDescription(middleDataPanel.getShortDescription());
-        currentRoom.setTags(middleDataPanel.getRoomFlagsPanel().getSelectedTags());
-        currentRoom.setLongDescription(longDescriptionPanel.getLongDescription());
-
-        Path filePath = persistenceService.getRoomPath(
-                topMetaDataPanel.getLocationName(),
-                topMetaDataPanel.getAreaName(),
-                topMetaDataPanel.getFileName()
-        );
-
-        persistenceService.saveRoomData(currentRoom, filePath);
-        this.savedRoomFilePath = filePath;
+    public void setCurrentAmbianceEvents(List<AmbianceEvent> events) {
+        if (currentRoom != null) {
+            currentRoom.setAmbianceEvents(events);
+        }
     }
 
     @Override
@@ -80,25 +59,56 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public RoomData getCurrentRoom() {
-        return currentRoom;
-    }
-
-    /**
-     * FIX: Added the missing override for getSavedRoomFilePath.
-     */
-    @Override
-    public Path getSavedRoomFilePath() {
-        return savedRoomFilePath;
-    }
-
-    @Override
-    public List<AmbianceEvent> getCurrentAmbianceEvents() {
-        return currentRoom.getAmbianceEvents();
+    public void saveCurrentRoom() throws IOException {
+        if (currentRoom == null) {
+            throw new IllegalStateException("There is no current room to save.");
+        }
+        Path filePath = persistenceService.getRoomPath(
+                currentRoom.getLocationName(),
+                currentRoom.getAreaName(),
+                topMetaDataPanel.getFileName()
+        );
+        persistenceService.saveRoomData(currentRoom, filePath);
+        this.savedRoomFilePath = filePath;
     }
 
     @Override
-    public void setCurrentAmbianceEvents(List<AmbianceEvent> events) {
-        currentRoom.setAmbianceEvents(events);
+    public void loadRoomAndPopulateUI(Path filePath) throws IOException {
+        RoomData loadedRoom = persistenceService.loadRoomData(filePath);
+        if (loadedRoom != null) {
+            this.currentRoom = loadedRoom;
+            this.savedRoomFilePath = filePath;
+            populateUIFromCurrentRoom();
+        }
+    }
+
+    @Override
+    public void gatherDataFromUI() {
+        if (currentRoom == null) {
+            return;
+        }
+        currentRoom.setLocationName(topMetaDataPanel.getLocationName());
+        currentRoom.setAreaName(topMetaDataPanel.getAreaName());
+        currentRoom.setRoomName(middleDataPanel.getRoomName());
+        currentRoom.setShortDescription(middleDataPanel.getShortDescription());
+        currentRoom.setLongDescription(longDescriptionPanel.getLongDescription());
+        currentRoom.setTags(middleDataPanel.getRoomFlagsPanel().getSelectedTags());
+    }
+
+    @Override
+    public void populateUIFromCurrentRoom() {
+        if (currentRoom == null) {
+            return;
+        }
+        topMetaDataPanel.setLocationName(currentRoom.getLocationName());
+        topMetaDataPanel.setAreaName(currentRoom.getAreaName());
+
+        String fileName = (savedRoomFilePath != null) ? savedRoomFilePath.getFileName().toString() : "";
+        topMetaDataPanel.setFileName(fileName);
+
+        middleDataPanel.setRoomName(currentRoom.getRoomName());
+        middleDataPanel.setShortDescription(currentRoom.getShortDescription());
+        middleDataPanel.getRoomFlagsPanel().setSelectedTags(currentRoom.getTags());
+        longDescriptionPanel.setLongDescription(currentRoom.getLongDescription());
     }
 }

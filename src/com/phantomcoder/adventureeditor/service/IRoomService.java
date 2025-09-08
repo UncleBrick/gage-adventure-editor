@@ -11,7 +11,9 @@ public interface IRoomService {
     Path getSavedRoomFilePath();
     List<AmbianceEvent> getCurrentAmbianceEvents();
     void setCurrentAmbianceEvents(List<AmbianceEvent> events);
-    void createAndSetCurrentRoom() throws IllegalArgumentException;
-    void saveCurrentRoom() throws IllegalStateException, IllegalArgumentException, IOException;
-    void loadRoomAndPopulateUI(Path fullFilePath) throws IllegalArgumentException, IOException;
+    void createAndSetCurrentRoom();
+    void saveCurrentRoom() throws IOException;
+    void loadRoomAndPopulateUI(Path filePath) throws IOException;
+    void gatherDataFromUI();
+    void populateUIFromCurrentRoom();
 }
