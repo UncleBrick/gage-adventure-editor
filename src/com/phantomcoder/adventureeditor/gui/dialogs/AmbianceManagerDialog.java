@@ -4,6 +4,7 @@ import com.phantomcoder.adventureeditor.constants.DialogConstants;
 import com.phantomcoder.adventureeditor.constants.LayoutConstants;
 import com.phantomcoder.adventureeditor.controller.RoomController;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
+import com.phantomcoder.adventureeditor.model.RoomData;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,8 +86,21 @@ public class AmbianceManagerDialog extends JDialog {
         }
     }
 
+    private AddEditAmbianceDialog createDialog(String title) {
+        RoomData currentRoom = roomController.getRoomService().getCurrentRoom();
+        return new AddEditAmbianceDialog(
+                (JFrame) getParent(),
+                title,
+                currentRoom.getLocationName(),
+                currentRoom.getAreaName(),
+                currentRoom.getRoomName(),
+                this.events // Pass the list of existing events for duplicate checking
+        );
+    }
+
     private void addEvent() {
-        AddEditAmbianceDialog dialog = new AddEditAmbianceDialog((JFrame) getParent(), "Add Ambient Text");
+        AddEditAmbianceDialog dialog = createDialog("Add Ambient Text");
+        dialog.setEventData(new AmbianceEvent()); // Pass a new, empty event
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
@@ -102,7 +116,7 @@ public class AmbianceManagerDialog extends JDialog {
         int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
             AmbianceEvent selectedEvent = events.get(selectedRow);
-            AddEditAmbianceDialog dialog = new AddEditAmbianceDialog((JFrame) getParent(), "Edit Ambient Text");
+            AddEditAmbianceDialog dialog = createDialog("Edit Ambient Text");
             dialog.setEventData(selectedEvent);
             dialog.setVisible(true);
 

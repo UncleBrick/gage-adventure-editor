@@ -29,6 +29,12 @@ public final class LayoutConstants {
     public static final double ROOM_EDITOR_SPLIT_PANE_RESIZE_WEIGHT = .005;
     public static final double ROOM_EDITOR_DIVIDER_LOCATION = .5;
 
+    // --- Welcome Dialog ---
+    public static final int WELCOME_DIALOG_MAIN_HGAP = 20;
+    public static final int WELCOME_DIALOG_MAIN_VGAP = 15;
+    public static final Insets WELCOME_DIALOG_PADDING = new Insets(15, 20, 15, 20);
+    public static final int WELCOME_DIALOG_CENTER_VGAP = 10;
+
     // For the GridLayout in the MiddleDataPanel
     public static final int BUTTON_PANEL_ROWS = 1;
     public static final int BUTTON_PANEL_COLS = 2;

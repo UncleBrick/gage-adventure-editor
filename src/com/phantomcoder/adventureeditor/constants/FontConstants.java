@@ -13,7 +13,8 @@ public final class FontConstants {
     public static final int TREE_FONT_SIZE = 14;
     public static final int PREVIEW_FONT_SIZE = 14;
     public static final int TOOLBAR_FONT_SIZE = 14;
-    public static final int STATUS_BAR_FONT_SIZE = 14; // NEW
+    public static final int STATUS_BAR_FONT_SIZE = 14;
+    public static final float WELCOME_DIALOG_TITLE_FONT_SIZE = 24f;
 
     // --- Font Styles ---
     public static final int PLAIN_STYLE = Font.PLAIN;

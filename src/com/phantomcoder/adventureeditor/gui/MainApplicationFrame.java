@@ -6,6 +6,7 @@ import com.phantomcoder.adventureeditor.constants.FrameConstants;
 import com.phantomcoder.adventureeditor.constants.LayoutConstants;
 import com.phantomcoder.adventureeditor.controller.ActionManager;
 import com.phantomcoder.adventureeditor.controller.RoomController;
+import com.phantomcoder.adventureeditor.gui.dialogs.WelcomeDialog;
 import com.phantomcoder.adventureeditor.gui.panels.EditorPanel;
 import com.phantomcoder.adventureeditor.gui.panels.PreviewPanel;
 import com.phantomcoder.adventureeditor.model.RoomData;
@@ -34,6 +35,7 @@ public class MainApplicationFrame extends JFrame {
     public MainApplicationFrame() {
         AppConfig.loadConfig();
         initialize();
+        // The welcome dialog logic has been moved out of the constructor.
     }
 
     private void initialize() {
@@ -43,8 +45,6 @@ public class MainApplicationFrame extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
-        // --- CORRECTED ORDER ---
-        // 1. Create the status bar and label first, so they exist before any controller tries to use them.
         JPanel statusBar = new JPanel(new BorderLayout());
         statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
         statusLabel = new JLabel(" Ready");
@@ -53,15 +53,12 @@ public class MainApplicationFrame extends JFrame {
         statusBar.add(statusLabel, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
-        // 2. Now, create the editor panel, which initializes the controllers.
         editorPanel = new EditorPanel(this);
         previewPanel = new PreviewPanel();
 
-        // 3. Get the controllers and action manager that were just created.
         RoomController roomController = editorPanel.getRoomController();
         ActionManager actionManager = roomController.getActionManager();
 
-        // 4. Create the menu bar and toolbar, which depend on the action manager.
         EditorMenuBar menuBar = new EditorMenuBar(roomController, actionManager);
         setJMenuBar(menuBar);
         roomController.setPreviewMenuItem(menuBar.getPreviewPaneItem());
@@ -83,21 +80,35 @@ public class MainApplicationFrame extends JFrame {
         }
         add(toolBar, BorderLayout.NORTH);
 
-        // 5. Create the main split pane and add it to the frame.
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, previewPanel);
         mainSplitPane.setResizeWeight(0.75);
         mainSplitPane.setOneTouchExpandable(true);
         mainSplitPane.setDividerSize(8);
         add(mainSplitPane, BorderLayout.CENTER);
 
-        // 6. Add window listener to hide the preview pane on first launch.
+        // The logic to show the welcome dialog is now here.
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
                 hidePreviewPane();
-                removeWindowListener(this);
+                showWelcomeDialogIfNeeded();
+                removeWindowListener(this); // This listener only needs to run once.
             }
         });
+    }
+
+    /**
+     * Checks the user's preference and shows the WelcomeDialog if needed.
+     */
+    private void showWelcomeDialogIfNeeded() {
+        if (AppConfig.shouldShowWelcomeDialog()) {
+            WelcomeDialog welcomeDialog = new WelcomeDialog(this);
+            welcomeDialog.setVisible(true);
+            if (welcomeDialog.isDontShowAgainSelected()) {
+                AppConfig.setShouldShowWelcomeDialog(false);
+                AppConfig.saveConfig();
+            }
+        }
     }
 
     public void updatePreview(RoomData room, String fileName) {
@@ -124,7 +135,6 @@ public class MainApplicationFrame extends JFrame {
     }
 
     public void setStatus(String status) {
-        // This call is now safe because statusLabel is guaranteed to exist.
         statusLabel.setText(" " + status);
     }
 

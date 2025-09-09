@@ -1,7 +1,10 @@
 package com.phantomcoder.adventureeditor.controller;
 
+import com.phantomcoder.adventureeditor.config.AppConfig;
+import com.phantomcoder.adventureeditor.constants.DialogConstants;
 import com.phantomcoder.adventureeditor.gui.MainApplicationFrame;
 import com.phantomcoder.adventureeditor.gui.dialogs.AmbianceManagerDialog;
+import com.phantomcoder.adventureeditor.gui.dialogs.SaveWarningDialog;
 import com.phantomcoder.adventureeditor.gui.panels.RoomEditorPanel;
 import com.phantomcoder.adventureeditor.gui.panels.TopMetaDataPanel;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
@@ -13,6 +16,7 @@ import com.phantomcoder.adventureeditor.util.RoomFileChooser;
 import com.phantomcoder.adventureeditor.util.UiHelper;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.JCheckBoxMenuItem;
@@ -41,6 +45,10 @@ public class RoomController {
         attachChangeListeners();
         wireUpButtons();
         handleAddRoomAction();
+    }
+
+    public IRoomService getRoomService() {
+        return roomService;
     }
 
     public void setObjectController(ObjectController objectController) {
@@ -77,10 +85,14 @@ public class RoomController {
     }
 
     private void updateActionStates() {
-        boolean hasPath = (roomService.getSavedRoomFilePath() != null);
+        boolean isRoomActive = (roomService.getSavedRoomFilePath() != null);
+
         actionManager.saveAction.setEnabled(isRoomDirty && isMetadataValid());
-        actionManager.saveAsAction.setEnabled(hasPath);
-        actionManager.closeAction.setEnabled(hasPath);
+        actionManager.saveAsAction.setEnabled(isRoomActive);
+        actionManager.closeAction.setEnabled(isRoomActive);
+
+        roomEditorPanel.getMiddleDataPanel().getManageAmbianceButton().setEnabled(isRoomActive);
+        roomEditorPanel.getMiddleDataPanel().getManageTimeStatesButton().setEnabled(isRoomActive);
     }
 
     public void handleAddRoomAction() {
@@ -95,6 +107,7 @@ public class RoomController {
 
         dirtyStateManager.takeSnapshot(roomService.getCurrentRoom());
         setRoomDirty(false);
+        updateActionStates();
         parentFrame.setStatus("New room created. Fill in the details to save.");
     }
 
@@ -109,14 +122,20 @@ public class RoomController {
             Path selectedPath = result.get();
             try {
                 isPopulatingForm = true;
-                roomService.loadRoomAndPopulateUI(selectedPath);
+                boolean dataWasUpgraded = roomService.loadRoomAndPopulateUI(selectedPath);
                 isPopulatingForm = false;
 
                 RoomData currentRoom = roomService.getCurrentRoom();
                 if (currentRoom != null) {
                     dirtyStateManager.takeSnapshot(currentRoom);
                     setRoomDirty(false);
-                    parentFrame.setStatus("Successfully loaded room: " + selectedPath.getFileName());
+
+                    if (dataWasUpgraded) {
+                        setRoomDirty(true);
+                        parentFrame.setStatus("Loaded and upgraded room: " + selectedPath.getFileName() + ". Please save.");
+                    } else {
+                        parentFrame.setStatus("Successfully loaded room: " + selectedPath.getFileName());
+                    }
                 } else {
                     UiHelper.showErrorDialog(parentFrame, "Load Error", "Failed to load room from file. The file may be empty or malformed.");
                 }
@@ -127,6 +146,24 @@ public class RoomController {
     }
 
     public void handleSaveCurrentRoomAction() {
+        // Check for empty optional fields
+        List<String> emptyFields = checkForEmptyOptionalFields();
+
+        // Show the warning only if fields are empty AND the user hasn't disabled it.
+        if (!emptyFields.isEmpty() && AppConfig.shouldShowSaveWarning()) {
+            SaveWarningDialog dialog = new SaveWarningDialog(parentFrame, emptyFields);
+            int choice = dialog.showDialog();
+
+            if (dialog.isDontShowAgainSelected()) {
+                AppConfig.setShouldShowSaveWarning(false);
+                AppConfig.saveConfig();
+            }
+
+            if (choice == DialogConstants.CANCEL_OPTION) {
+                return; // User cancelled, so abort the save.
+            }
+        }
+
         try {
             roomService.gatherDataFromUI();
             roomService.saveCurrentRoom();
@@ -138,6 +175,21 @@ public class RoomController {
         }
     }
 
+    private List<String> checkForEmptyOptionalFields() {
+        List<String> emptyFields = new ArrayList<>();
+        // Get data directly from the panels to ensure it's the most current state.
+        if (roomEditorPanel.getMiddleDataPanel().getRoomName().trim().isEmpty()) {
+            emptyFields.add("Room Name");
+        }
+        if (roomEditorPanel.getMiddleDataPanel().getShortDescription().trim().isEmpty()) {
+            emptyFields.add("Short Description");
+        }
+        if (roomEditorPanel.getLongDescriptionPanel().getLongDescription().trim().isEmpty()) {
+            emptyFields.add("Long Description");
+        }
+        return emptyFields;
+    }
+
     public void handleManageAmbianceAction() {
         ambianceManagerDialog.displayEvents(roomService.getCurrentAmbianceEvents());
         ambianceManagerDialog.setVisible(true);
@@ -145,7 +197,8 @@ public class RoomController {
 
     public void updateAmbianceData(List<AmbianceEvent> events) {
         roomService.setCurrentAmbianceEvents(events);
-        onFormChanged();
+        boolean dirty = dirtyStateManager.isDirty(roomService.getCurrentRoom());
+        setRoomDirty(dirty);
     }
 
     public ActionManager getActionManager() {

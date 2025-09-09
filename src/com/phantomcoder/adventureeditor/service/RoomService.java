@@ -1,11 +1,10 @@
 package com.phantomcoder.adventureeditor.service;
 
-import com.phantomcoder.adventureeditor.config.AppConfig;
 import com.phantomcoder.adventureeditor.gui.panels.LongDescriptionPanel;
 import com.phantomcoder.adventureeditor.gui.panels.MiddleDataPanel;
 import com.phantomcoder.adventureeditor.gui.panels.TopMetaDataPanel;
-import com.phantomcoder.adventureeditor.model.RoomData;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
+import com.phantomcoder.adventureeditor.model.RoomData;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -73,20 +72,34 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public void loadRoomAndPopulateUI(Path filePath) throws IOException {
-        // Corrected logic: assign the path before trying to load the data.
+    public boolean loadRoomAndPopulateUI(Path filePath) throws IOException {
+        boolean dataWasUpgraded = false;
         this.savedRoomFilePath = filePath;
 
-        // Attempt to load the room data.
         RoomData loadedRoom = persistenceService.loadRoomData(filePath);
-
-        // Explicitly set the currentRoom variable.
         this.currentRoom = loadedRoom;
 
-        // Populate the UI with the data from the currentRoom variable.
         if (this.currentRoom != null) {
+            // --- DATA MIGRATION LOGIC ---
+            if (currentRoom.getAmbianceEvents() != null) {
+                for (AmbianceEvent event : currentRoom.getAmbianceEvents()) {
+                    // Check if the ID is in the old, short format.
+                    if (event.getId() != null && !event.getId().startsWith("ambtxt_")) {
+                        String newFullId = AmbianceCreationService.generateFullId(
+                                currentRoom.getLocationName(),
+                                currentRoom.getAreaName(),
+                                currentRoom.getRoomName(),
+                                event.getId(), // The old ID is the content hash
+                                currentRoom.getAmbianceEvents()
+                        );
+                        event.setId(newFullId);
+                        dataWasUpgraded = true; // Signal that a change was made.
+                    }
+                }
+            }
             populateUIFromCurrentRoom();
         }
+        return dataWasUpgraded;
     }
 
     @Override
@@ -107,40 +120,15 @@ public class RoomService implements IRoomService {
         if (currentRoom == null) {
             return;
         }
-
-        // Debugging print statements to check the values of each field
-        System.out.println("--- Values in RoomData object before UI population ---");
-        System.out.println("Location Name: " + currentRoom.getLocationName());
-        System.out.println("Area Name: " + currentRoom.getAreaName());
-        System.out.println("Room Name: " + currentRoom.getRoomName());
-        System.out.println("Short Description: " + currentRoom.getShortDescription());
-        System.out.println("Long Description: " + currentRoom.getLongDescription());
-        System.out.println("Tags: " + currentRoom.getTags());
-        System.out.println("------------------------------------");
-
-        // Set values for TopMetaDataPanel
-        System.out.println("Setting Location Name in UI: " + currentRoom.getLocationName());
         topMetaDataPanel.setLocationName(currentRoom.getLocationName());
-
-        System.out.println("Setting Area Name in UI: " + currentRoom.getAreaName());
         topMetaDataPanel.setAreaName(currentRoom.getAreaName());
 
         String fileName = (savedRoomFilePath != null) ? savedRoomFilePath.getFileName().toString() : "";
-        System.out.println("Setting File Name in UI: " + fileName);
         topMetaDataPanel.setFileName(fileName);
 
-        // Set values for MiddleDataPanel
-        System.out.println("Setting Room Name in UI: " + currentRoom.getRoomName());
         middleDataPanel.setRoomName(currentRoom.getRoomName());
-
-        System.out.println("Setting Short Description in UI: " + currentRoom.getShortDescription());
         middleDataPanel.setShortDescription(currentRoom.getShortDescription());
-
-        System.out.println("Setting Tags in UI: " + currentRoom.getTags());
         middleDataPanel.getRoomFlagsPanel().setSelectedTags(currentRoom.getTags());
-
-        // Set value for LongDescriptionPanel
-        System.out.println("Setting Long Description in UI: " + currentRoom.getLongDescription());
         longDescriptionPanel.setLongDescription(currentRoom.getLongDescription());
     }
 }

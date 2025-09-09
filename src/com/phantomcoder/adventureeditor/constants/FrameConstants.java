@@ -14,6 +14,9 @@ public final class FrameConstants {
     public static final int AMBIANCE_DIALOG_WIDTH = 600;
     public static final int AMBIANCE_DIALOG_HEIGHT = 400;
 
+    // --- Icon Sizes ---
+    public static final int WELCOME_DIALOG_ICON_SIZE = 128;
+
     // --- Window Properties ---
     public static final String MAIN_WINDOW_TITLE = "Generic Adventure Game Editor (GAGE)";
     public static final Image PROGRAM_ICON = loadIcon();

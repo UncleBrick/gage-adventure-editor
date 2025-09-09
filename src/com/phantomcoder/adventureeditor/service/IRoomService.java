@@ -13,7 +13,7 @@ public interface IRoomService {
     void setCurrentAmbianceEvents(List<AmbianceEvent> events);
     void createAndSetCurrentRoom();
     void saveCurrentRoom() throws IOException;
-    void loadRoomAndPopulateUI(Path filePath) throws IOException;
+    boolean loadRoomAndPopulateUI(Path filePath) throws IOException;
     void gatherDataFromUI();
     void populateUIFromCurrentRoom();
 }
