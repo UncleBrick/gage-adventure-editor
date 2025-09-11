@@ -47,6 +47,10 @@ public class RoomController {
         handleAddRoomAction();
     }
 
+    /**
+     * Provides access to the room service for dependent components.
+     * @return The instance of the room service.
+     */
     public IRoomService getRoomService() {
         return roomService;
     }
@@ -109,6 +113,10 @@ public class RoomController {
         setRoomDirty(false);
         updateActionStates();
         parentFrame.setStatus("New room created. Fill in the details to save.");
+
+        if (objectController != null) {
+            objectController.onNewRoom();
+        }
     }
 
     public void handleLoadRoomAction() {
@@ -136,6 +144,10 @@ public class RoomController {
                     } else {
                         parentFrame.setStatus("Successfully loaded room: " + selectedPath.getFileName());
                     }
+
+                    if (objectController != null) {
+                        objectController.onRoomLoaded(currentRoom);
+                    }
                 } else {
                     UiHelper.showErrorDialog(parentFrame, "Load Error", "Failed to load room from file. The file may be empty or malformed.");
                 }
@@ -146,10 +158,8 @@ public class RoomController {
     }
 
     public void handleSaveCurrentRoomAction() {
-        // Check for empty optional fields
         List<String> emptyFields = checkForEmptyOptionalFields();
 
-        // Show the warning only if fields are empty AND the user hasn't disabled it.
         if (!emptyFields.isEmpty() && AppConfig.shouldShowSaveWarning()) {
             SaveWarningDialog dialog = new SaveWarningDialog(parentFrame, emptyFields);
             int choice = dialog.showDialog();
@@ -160,7 +170,7 @@ public class RoomController {
             }
 
             if (choice == DialogConstants.CANCEL_OPTION) {
-                return; // User cancelled, so abort the save.
+                return;
             }
         }
 
@@ -177,7 +187,6 @@ public class RoomController {
 
     private List<String> checkForEmptyOptionalFields() {
         List<String> emptyFields = new ArrayList<>();
-        // Get data directly from the panels to ensure it's the most current state.
         if (roomEditorPanel.getMiddleDataPanel().getRoomName().trim().isEmpty()) {
             emptyFields.add("Room Name");
         }

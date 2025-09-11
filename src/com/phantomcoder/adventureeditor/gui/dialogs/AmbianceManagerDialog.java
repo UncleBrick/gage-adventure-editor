@@ -1,6 +1,5 @@
 package com.phantomcoder.adventureeditor.gui.dialogs;
 
-import com.phantomcoder.adventureeditor.constants.DialogConstants;
 import com.phantomcoder.adventureeditor.constants.LayoutConstants;
 import com.phantomcoder.adventureeditor.controller.RoomController;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
@@ -8,6 +7,7 @@ import com.phantomcoder.adventureeditor.model.RoomData;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -29,7 +29,7 @@ public class AmbianceManagerDialog extends JDialog {
         super(parent, "Ambiance Manager", true);
         this.roomController = roomController;
 
-        String[] columnNames = {"ID", "GUID", "Ambient Text", "Frequency %"};
+        String[] columnNames = {"ID", "GUID", "Ambient Text", "Frequency %", "Flags"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -40,13 +40,14 @@ public class AmbianceManagerDialog extends JDialog {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(DialogConstants.AMBIANCE_ID_COL_WIDTH);
-        table.getColumnModel().getColumn(1).setPreferredWidth(DialogConstants.AMBIANCE_GUID_COL_WIDTH);
-        table.getColumnModel().getColumn(2).setPreferredWidth(DialogConstants.AMBIANCE_TEXT_COL_WIDTH);
-        table.getColumnModel().getColumn(3).setPreferredWidth(DialogConstants.AMBIANCE_FREQ_COL_WIDTH);
+        table.getColumnModel().getColumn(0).setPreferredWidth(250);
+        table.getColumnModel().getColumn(1).setPreferredWidth(220);
+        table.getColumnModel().getColumn(2).setPreferredWidth(250);
+        table.getColumnModel().getColumn(3).setPreferredWidth(80);
+        table.getColumnModel().getColumn(4).setPreferredWidth(150);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(DialogConstants.AMBIANCE_DIALOG_SIZE);
+        scrollPane.setPreferredSize(new java.awt.Dimension(1000, 300));
 
         JPanel buttonPanel = new JPanel();
         JButton addButton = new JButton("Add...");
@@ -82,33 +83,40 @@ public class AmbianceManagerDialog extends JDialog {
         this.events = new ArrayList<>(originalEvents);
         tableModel.setRowCount(0);
         for (AmbianceEvent event : events) {
-            tableModel.addRow(new Object[]{event.getId(), event.getGuid(), event.getText(), event.getFrequency()});
+            tableModel.addRow(new Object[]{event.getId(), event.getGuid(), event.getText(), event.getFrequency(), formatFlags(event.getFlags())});
         }
     }
 
+    private String formatFlags(Set<String> flags) {
+        if (flags == null || flags.isEmpty()) {
+            return "";
+        }
+        return String.join(", ", flags);
+    }
+
     private AddEditAmbianceDialog createDialog(String title) {
-        RoomData currentRoom = roomController.getRoomService().getCurrentRoom();
-        return new AddEditAmbianceDialog(
-                (JFrame) getParent(),
-                title,
-                currentRoom.getLocationName(),
-                currentRoom.getAreaName(),
-                currentRoom.getRoomName(),
-                this.events // Pass the list of existing events for duplicate checking
-        );
+        return new AddEditAmbianceDialog((JFrame) getParent(), title);
     }
 
     private void addEvent() {
         AddEditAmbianceDialog dialog = createDialog("Add Ambient Text");
-        dialog.setEventData(new AmbianceEvent()); // Pass a new, empty event
+        RoomData currentRoom = roomController.getRoomService().getCurrentRoom();
+
+        dialog.setEventData(new AmbianceEvent(),
+                currentRoom.getLocationName(),
+                currentRoom.getAreaName(),
+                currentRoom.getRoomName(),
+                this.events);
+
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
             AmbianceEvent newEvent = dialog.getEventData();
-            newEvent.setGuid(UUID.randomUUID().toString());
-
+            if (newEvent.getGuid() == null || newEvent.getGuid().isEmpty()) {
+                newEvent.setGuid(UUID.randomUUID().toString());
+            }
             events.add(newEvent);
-            tableModel.addRow(new Object[]{newEvent.getId(), newEvent.getGuid(), newEvent.getText(), newEvent.getFrequency()});
+            tableModel.addRow(new Object[]{newEvent.getId(), newEvent.getGuid(), newEvent.getText(), newEvent.getFrequency(), formatFlags(newEvent.getFlags())});
         }
     }
 
@@ -117,7 +125,14 @@ public class AmbianceManagerDialog extends JDialog {
         if (selectedRow >= 0) {
             AmbianceEvent selectedEvent = events.get(selectedRow);
             AddEditAmbianceDialog dialog = createDialog("Edit Ambient Text");
-            dialog.setEventData(selectedEvent);
+            RoomData currentRoom = roomController.getRoomService().getCurrentRoom();
+
+            dialog.setEventData(selectedEvent,
+                    currentRoom.getLocationName(),
+                    currentRoom.getAreaName(),
+                    currentRoom.getRoomName(),
+                    this.events);
+
             dialog.setVisible(true);
 
             if (dialog.isSaved()) {
@@ -127,6 +142,7 @@ public class AmbianceManagerDialog extends JDialog {
                 tableModel.setValueAt(updatedEvent.getGuid(), selectedRow, 1);
                 tableModel.setValueAt(updatedEvent.getText(), selectedRow, 2);
                 tableModel.setValueAt(updatedEvent.getFrequency(), selectedRow, 3);
+                tableModel.setValueAt(formatFlags(updatedEvent.getFlags()), selectedRow, 4);
             }
         }
     }

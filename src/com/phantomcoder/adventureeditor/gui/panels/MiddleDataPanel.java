@@ -2,7 +2,6 @@ package com.phantomcoder.adventureeditor.gui.panels;
 
 import com.phantomcoder.adventureeditor.constants.LayoutConstants;
 import com.phantomcoder.adventureeditor.util.ComponentListenerHelper;
-import com.phantomcoder.adventureeditor.util.UiHelper;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemListener;
@@ -39,7 +38,7 @@ public class MiddleDataPanel extends JPanel {
 
         roomFlagsPanel = new RoomFlagsPanel();
         roomFlagsPanel.setBorder(new TitledBorder(""));
-        UiHelper.styleTabbedPane(roomFlagsPanel);
+        // The line below was removed as UiHelper.styleTabbedPane is now handled internally.
 
         JPanel buttonsPanel = new JPanel(new GridLayout(
                 LayoutConstants.BUTTON_PANEL_ROWS,
@@ -69,7 +68,7 @@ public class MiddleDataPanel extends JPanel {
     public void addChangeListener(DocumentListener docListener, ItemListener itemListener) {
         roomNameField.getDocument().addDocumentListener(docListener);
         shortDescriptionField.getDocument().addDocumentListener(docListener);
-        ComponentListenerHelper.attachListenerToCheckBoxes(roomFlagsPanel, itemListener);
+        roomFlagsPanel.addChangeListener(itemListener); // Now delegates to the panel
     }
 
     // --- Getters and Setters ---
@@ -80,9 +79,6 @@ public class MiddleDataPanel extends JPanel {
     public JButton getManageAmbianceButton() { return manageAmbianceButton; }
     public RoomFlagsPanel getRoomFlagsPanel() { return roomFlagsPanel; }
 
-    /**
-     * FIX: Added a getter for the Time States button so the controller can manage its state.
-     */
     public JButton getManageTimeStatesButton() {
         return manageTimeStatesButton;
     }

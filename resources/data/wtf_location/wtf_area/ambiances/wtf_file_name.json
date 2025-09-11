@@ -1,0 +1,20 @@
+{
+  "file_type": "Ambiance Data",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "ambtxt_wtf_location_wtf_area_wtf_room_name_wtfig_00",
+      "guid": "0314d5cd-9900-49ba-a1d5-2d3f5787b9ec",
+      "text": "what the F is going on",
+      "frequency": 0,
+      "flags": []
+    },
+    {
+      "id": "ambtxt_wtf_location_wtf_area_wtf_room_name_wtfig_01",
+      "guid": "18767a4d-afd1-48bb-a252-119b6e8e2b1d",
+      "text": "what the F is going on",
+      "frequency": 0,
+      "flags": []
+    }
+  ]
+}

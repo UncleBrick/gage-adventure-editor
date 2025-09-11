@@ -15,11 +15,14 @@ public final class FrameConstants {
     public static final int AMBIANCE_DIALOG_HEIGHT = 400;
 
     // --- Icon Sizes ---
-    public static final int WELCOME_DIALOG_ICON_SIZE = 128;
+    public static final int WELCOME_DIALOG_ICON_SIZE = 48;
 
     // --- Window Properties ---
     public static final String MAIN_WINDOW_TITLE = "Generic Adventure Game Editor (GAGE)";
     public static final Image PROGRAM_ICON = loadIcon();
+
+    // --- UI Component Text ---
+    public static final String USER_DEFINED_FLAGS_TAB_TITLE = "User Defined";
 
     private static Image loadIcon() {
         try {

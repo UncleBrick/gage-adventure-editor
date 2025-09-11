@@ -1,0 +1,23 @@
+{
+  "file_type": "Room Data",
+  "version": "1.0",
+  "data": {
+    "locationName": "Location Name",
+    "areaName": "Area Name",
+    "roomName": "Room Name",
+    "shortDescription": "Short Description",
+    "longDescription": "Long Description we changed the long discription sice we made the dynamic pararell shit more dynamic. ",
+    "roomTags": [
+      "SHOP",
+      "MINI_BOSS_ROOM",
+      "CHURCH",
+      "HUB_TOWN",
+      "BOSS_ROOM",
+      "GRAVEYARD",
+      "TREASURE_ROOM",
+      "DUNGEON",
+      "SECRET_ROOM",
+      "STARTING_POINT"
+    ]
+  }
+}

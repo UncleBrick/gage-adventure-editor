@@ -1,0 +1,30 @@
+{
+  "file_type": "Ambiance Data",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "ambtxt_location_name_area_name_room_name_tijjo_00",
+      "guid": "60932fe2-eae0-467a-a7ec-9784b56f5e87",
+      "text": "this is",
+      "frequency": 50
+    },
+    {
+      "id": "ambtxt_location_name_area_name_room_name_tiaat_00",
+      "guid": "01719edc-1a30-4a1a-9310-c94745284b6d",
+      "text": "This is an ambiance text",
+      "frequency": 50
+    },
+    {
+      "id": "ambtxt_location_name_area_name_room_name_tiaat_01",
+      "guid": "045183b3-63ab-477d-b2fb-c1542dfdeaa7",
+      "text": "that igloo amounted an tent",
+      "frequency": 50
+    },
+    {
+      "id": "ambtxt_location_name_area_name_room_name_tiaat_02",
+      "guid": "81a3d7a7-30c7-4cf7-929d-ae57a36eb44b",
+      "text": "that inksack amounts atop texture",
+      "frequency": 50
+    }
+  ]
+}
