@@ -7,6 +7,8 @@ import com.phantomcoder.adventureeditor.gui.panels.GenericFlagsPanel;
 import com.phantomcoder.adventureeditor.gui.panels.WrappingPanel;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
 import com.phantomcoder.adventureeditor.service.AmbianceCreationService;
+import com.phantomcoder.adventureeditor.util.PathUtil;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ItemEvent;
@@ -124,10 +126,21 @@ public class AddEditAmbianceDialog extends JDialog {
     }
 
     private void updateFinalIdPreview() {
-        String contentSource = useCustomIdCheckBox.isSelected() ? customIdField.getText() : descriptiveTextField.getText();
-        String hash = AmbianceCreationService.generateContentHash(contentSource);
+        String vanityOrHash;
+        // NEW LOGIC: Check if the custom ID box is selected.
+        if (useCustomIdCheckBox.isSelected()) {
+            // If yes, sanitize the custom ID text to create the vanity ID.
+            vanityOrHash = PathUtil.toSafeFileName(customIdField.getText());
+            if (vanityOrHash.isEmpty()) {
+                vanityOrHash = "custom"; // Provide a default if empty
+            }
+        } else {
+            // If no, generate a hash from the descriptive text (original behavior).
+            vanityOrHash = AmbianceCreationService.generateContentHash(descriptiveTextField.getText());
+        }
+
         String previewId = AmbianceCreationService.generateFullId(
-                locationName, areaName, roomName, hash, null // No need to check for duplicates in a live preview
+                locationName, areaName, roomName, vanityOrHash, null // No need to check for duplicates in a live preview
         );
         finalIdField.setText(previewId.substring(0, previewId.length() - 3)); // Show without variant for preview
     }
@@ -175,10 +188,22 @@ public class AddEditAmbianceDialog extends JDialog {
             event.setGuid(UUID.randomUUID().toString());
         }
 
-        String contentSource = useCustomIdCheckBox.isSelected() ? customIdField.getText() : descriptiveTextField.getText();
-        String contentHash = AmbianceCreationService.generateContentHash(contentSource);
+        String vanityOrHash;
+        // NEW LOGIC: Replicate the preview logic for the final save operation.
+        if (useCustomIdCheckBox.isSelected()) {
+            // If yes, sanitize the custom ID text.
+            vanityOrHash = PathUtil.toSafeFileName(customIdField.getText());
+            if (vanityOrHash.isEmpty()) {
+                // You may want to show an error here, but for now, we'll use a default.
+                vanityOrHash = "custom";
+            }
+        } else {
+            // If no, generate a hash from the descriptive text.
+            vanityOrHash = AmbianceCreationService.generateContentHash(descriptiveTextField.getText());
+        }
+
         String finalId = AmbianceCreationService.generateFullId(
-                locationName, areaName, roomName, contentHash, existingEvents
+                locationName, areaName, roomName, vanityOrHash, existingEvents
         );
         event.setId(finalId);
 

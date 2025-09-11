@@ -15,6 +15,15 @@
       "text": "what the F is going on",
       "frequency": 0,
       "flags": []
+    },
+    {
+      "id": "ambtxt_wtf_location_wtf_area_wtf_room_name_super_secret_quest_00",
+      "guid": "f58038bb-a5cc-4543-88c3-453ae11ab67d",
+      "text": "you hear rumors about a super secret quest.",
+      "frequency": 0,
+      "flags": [
+        "STARTS_QUEST"
+      ]
     }
   ]
 }

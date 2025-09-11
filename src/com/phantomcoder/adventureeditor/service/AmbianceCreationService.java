@@ -34,12 +34,12 @@ public class AmbianceCreationService {
         return hashBuilder.toString().toLowerCase();
     }
 
-    public static String generateFullId(String location, String area, String roomName, String contentHash, List<AmbianceEvent> existingEvents) {
+    public static String generateFullId(String location, String area, String roomName, String vanityOrHash, List<AmbianceEvent> existingEvents) {
         String safeLocation = PathUtil.toSafeFileName(location);
         String safeArea = PathUtil.toSafeFileName(area);
         String safeRoomName = PathUtil.toSafeFileName(roomName);
 
-        String baseId = String.format("ambtxt_%s_%s_%s_%s", safeLocation, safeArea, safeRoomName, contentHash);
+        String baseId = String.format("ambtxt_%s_%s_%s_%s", safeLocation, safeArea, safeRoomName, vanityOrHash);
 
         int variant = 0;
         while (true) {

@@ -22,7 +22,9 @@ public class EditorPanel extends JPanel {
         tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-        ObjectsPanel objectsPanel = new ObjectsPanel();
+        // FIX: Pass the existing roomController into the ObjectsPanel constructor.
+        ObjectsPanel objectsPanel = new ObjectsPanel(roomController);
+
         ObjectController objectController = new ObjectController(parentFrame, objectsPanel);
         objectController.wireUpButtons();
 

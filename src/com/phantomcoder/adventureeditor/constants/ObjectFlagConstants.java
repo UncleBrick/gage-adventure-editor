@@ -5,6 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// Import the shared constants to be used in the flag groups
+import static com.phantomcoder.adventureeditor.constants.SharedFlagConstants.KEY_ITEM;
+import static com.phantomcoder.adventureeditor.constants.SharedFlagConstants.LORE_ITEM;
+import static com.phantomcoder.adventureeditor.constants.SharedFlagConstants.QUEST_ITEM;
+import static com.phantomcoder.adventureeditor.constants.SharedFlagConstants.STARTS_QUEST;
+import static com.phantomcoder.adventureeditor.constants.SharedFlagConstants.TIME_FLAG_GROUP;
+
+
 public final class ObjectFlagConstants {
 
     // --- Binding & Ownership ---
@@ -24,16 +32,12 @@ public final class ObjectFlagConstants {
     public static final String INDESTRUCTIBLE = "INDESTRUCTIBLE";
     public static final String TEMPORARY_EXPIRES = "TEMPORARY_EXPIRES";
 
-    // --- Quest, Story, & Cursed ---
+    // --- Quest, Story, & Cursed (Object Specific) ---
     public static final String ATTRACTS_AGGRESSION = "ATTRACTS_AGGRESSION";
     public static final String CURSED = "CURSED";
     public static final String DRAINS_LIFE_MANA = "DRAINS_LIFE_MANA";
     public static final String FRAGILE = "FRAGILE";
     public static final String IS_HIDDEN = "IS_HIDDEN";
-    public static final String KEY_ITEM = "KEY_ITEM";
-    public static final String LORE_ITEM = "LORE_ITEM";
-    public static final String QUEST_ITEM = "QUEST_ITEM";
-    public static final String STARTS_QUEST = "STARTS_QUEST";
 
     // --- Special & Miscellaneous ---
     public static final String CLASS_SPECIFIC = "CLASS_SPECIFIC";
@@ -52,8 +56,8 @@ public final class ObjectFlagConstants {
     // --- Locking Logic ---
     public static final String IS_LOCKABLE = "IS_LOCKABLE";
 
-    // --- World Interaction --- // NEW
-    public static final String IS_SLIDEABLE = "IS_SLIDEABLE"; // NEW
+    // --- World Interaction ---
+    public static final String IS_SLIDEABLE = "IS_SLIDEABLE";
     public static final String IS_DESTROYABLE = "IS_DESTROYABLE";
 
     /** A map of all flag groups, used by the UI to dynamically generate checkboxes. */
@@ -67,7 +71,10 @@ public final class ObjectFlagConstants {
                 CANNOT_BE_REPAIRED, CANNOT_BE_SALVAGED, CONSUMED_ON_USE, DESTROY_ON_DEATH, HAS_DURABILITY, INDESTRUCTIBLE, TEMPORARY_EXPIRES
         ));
         ALL_FLAG_GROUPS.put("Quest, Story, & Cursed", Arrays.asList(
-                ATTRACTS_AGGRESSION, CURSED, DRAINS_LIFE_MANA, FRAGILE, IS_HIDDEN, KEY_ITEM, LORE_ITEM, QUEST_ITEM, STARTS_QUEST
+                // Using shared constants now
+                STARTS_QUEST, QUEST_ITEM, KEY_ITEM, LORE_ITEM,
+                // Object-specific ones remain
+                ATTRACTS_AGGRESSION, CURSED, DRAINS_LIFE_MANA, FRAGILE, IS_HIDDEN
         ));
         ALL_FLAG_GROUPS.put("Special & Miscellaneous", Arrays.asList(
                 CLASS_SPECIFIC, FACTION_SPECIFIC, RACE_SPECIFIC, REQUIRES_ATTUNEMENT, STACKABLE, UNMODIFIABLE
@@ -75,10 +82,13 @@ public final class ObjectFlagConstants {
         ALL_FLAG_GROUPS.put("Trade & Economy", Arrays.asList(
                 CANNOT_BE_DROPPED, CANNOT_BE_SOLD, NO_VALUE, VENDOR_TRASH
         ));
-        // NEW CATEGORY ADDED TO THE MAP
         ALL_FLAG_GROUPS.put("World Interaction", Arrays.asList(
                 IS_SLIDEABLE, IS_DESTROYABLE
         ));
+
+        // --- Shared Categories ---
+        // Add the shared time flags for use in the Object UI
+        ALL_FLAG_GROUPS.putAll(TIME_FLAG_GROUP);
     }
 
     private ObjectFlagConstants() { /* Prevent instantiation */ }
