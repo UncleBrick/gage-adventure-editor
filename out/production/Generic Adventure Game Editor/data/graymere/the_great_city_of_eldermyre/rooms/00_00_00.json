@@ -1,0 +1,16 @@
+{
+  "file_type": "Room Data",
+  "version": "1.0",
+  "data": {
+    "locationName": "Graymere",
+    "areaName": "The Great City of Eldermyre",
+    "subAreaName": "",
+    "roomName": "Elddermyre Towne Center",
+    "shortDescription": "A bustling town square with a grand fountain ringed by colorful market stalls.",
+    "longDescription": "The heart of Eldermyre beats in its town center, where cobbled streets converge from every direction. At the square’s core rises a wide marble fountain, its waters sparkling in the daylight as carved stone lions spill streams into the basin. Merchants shout over one another from wooden stalls draped in bright awnings, hawking everything from fresh bread to polished trinkets. The scents of spices, leather, and roasting meat mingle in the air, carried on the bustle of townsfolk and travelers alike. Children dart between stalls in games of chase while guards in faded livery watch the crowd with practiced eyes. Every street leading outward from the square beckons with promise — the road to the keep, the path to the docks, the alleys that slip away into quieter corners of Eldermyre.",
+    "roomTags": [
+      "SAFE_ZONE",
+      "STARTING_POINT"
+    ]
+  }
+}

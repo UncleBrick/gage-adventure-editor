@@ -4,12 +4,14 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class RoomData {
 
     private String locationName;
     private String areaName;
+    private String subAreaName; // NEW
     private String roomName;
     private String shortDescription;
     private String longDescription;
@@ -32,6 +34,7 @@ public class RoomData {
     public RoomData() {
         this.locationName = "";
         this.areaName = "";
+        this.subAreaName = ""; // NEW
         this.tags = new HashSet<>();
         this.ambianceEvents = new ArrayList<>();
         this.objects = new ArrayList<>();
@@ -48,6 +51,8 @@ public class RoomData {
     public void setLocationName(String locationName) { this.locationName = locationName; }
     public String getAreaName() { return areaName; }
     public void setAreaName(String areaName) { this.areaName = areaName; }
+    public String getSubAreaName() { return subAreaName; } // NEW
+    public void setSubAreaName(String subAreaName) { this.subAreaName = subAreaName; } // NEW
     public String getRoomName() { return roomName; }
     public void setRoomName(String roomName) { this.roomName = roomName; }
     public String getShortDescription() { return shortDescription; }
@@ -70,4 +75,33 @@ public class RoomData {
     public void setMagic(List<MagicData> magic) { this.magic = magic; }
     public List<QuestData> getQuests() { return quests; }
     public void setQuests(List<QuestData> quests) { this.quests = quests; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoomData roomData = (RoomData) o;
+        return Objects.equals(locationName, roomData.locationName) &&
+                Objects.equals(areaName, roomData.areaName) &&
+                Objects.equals(subAreaName, roomData.subAreaName) && // NEW
+                Objects.equals(roomName, roomData.roomName) &&
+                Objects.equals(shortDescription, roomData.shortDescription) &&
+                Objects.equals(longDescription, roomData.longDescription) &&
+                Objects.equals(tags, roomData.tags) &&
+                Objects.equals(ambianceEvents, roomData.ambianceEvents) &&
+                Objects.equals(objects, roomData.objects) &&
+                Objects.equals(npcs, roomData.npcs) &&
+                Objects.equals(commands, roomData.commands) &&
+                Objects.equals(exits, roomData.exits) &&
+                Objects.equals(magic, roomData.magic) &&
+                Objects.equals(quests, roomData.quests);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(locationName, areaName, subAreaName, roomName,
+                shortDescription, longDescription, tags, ambianceEvents, objects,
+                npcs, commands, exits, magic, quests);
+    }
 }
+

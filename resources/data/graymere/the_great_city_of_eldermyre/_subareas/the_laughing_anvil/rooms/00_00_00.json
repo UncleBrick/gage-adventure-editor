@@ -1,0 +1,16 @@
+{
+  "file_type": "Room Data",
+  "version": "1.0",
+  "data": {
+    "locationName": "Graymere",
+    "areaName": "The Great City of Eldermyre",
+    "subAreaName": "The Laughing Anvil",
+    "roomName": "Entrance to The Laughing Anvil",
+    "shortDescription": "A stout stone tavern with a crooked sign depicting a grinning iron anvil.",
+    "longDescription": "The Laughing Anvil stands proudly at the bend of a cobbled street, its thick stone walls blackened by years of smoke and forge-work. Above the heavy oak door swings a crooked iron sign, painted with the image of a broad anvil carved into a smile. Warm light spills through warped glass windows, and the muffled roar of laughter and clashing mugs drifts into the night air. The smell of roasting meat and spilled ale mixes with the tang of hot metal from the smithies nearby, giving the tavern an unmistakable scent of hearth and hammer. Outside its door, weary travelers pause to brush off the dust of the road, while locals boast of victories or losses before pushing inside to join the revelry.",
+    "roomTags": [
+      "SAFE_ZONE",
+      "STARTING_POINT"
+    ]
+  }
+}

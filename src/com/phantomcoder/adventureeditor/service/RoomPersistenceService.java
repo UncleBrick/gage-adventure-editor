@@ -113,20 +113,25 @@ public class RoomPersistenceService {
         };
     }
 
-    public Path getRoomPath(String location, String area, String fileName) {
+    public Path getRoomPath(String location, String area, String subArea, String fileName) {
         String safeLocation = PathUtil.toSafeFileName(location);
         String safeArea = PathUtil.toSafeFileName(area);
+        String safeSubArea = PathUtil.toSafeFileName(subArea);
         String nameWithoutExtension = fileName.endsWith(".json")
                 ? fileName.substring(0, fileName.length() - ".json".length())
                 : fileName;
         String safeFileName = PathUtil.toSafeFileName(nameWithoutExtension);
         String jsonFileName = safeFileName + ".json";
 
-        return PathUtil.getAppBaseDirectory()
+        Path basePath = PathUtil.getAppBaseDirectory()
                 .resolve(DataConstants.BASE_DATA_PATH)
                 .resolve(safeLocation)
-                .resolve(safeArea)
-                .resolve(DataConstants.ROOMS_DIRECTORY_NAME)
-                .resolve(jsonFileName);
+                .resolve(safeArea);
+
+        if (safeSubArea != null && !safeSubArea.isEmpty()) {
+            basePath = basePath.resolve(DataConstants.SUBAREAS_DIRECTORY_NAME).resolve(safeSubArea);
+        }
+
+        return basePath.resolve(DataConstants.ROOMS_DIRECTORY_NAME).resolve(jsonFileName);
     }
 }

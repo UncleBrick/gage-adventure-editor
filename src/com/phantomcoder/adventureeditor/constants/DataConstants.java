@@ -18,6 +18,7 @@ public final class DataConstants {
 
     // --- Individual Directory Name Constants ---
     public static final String ROOMS_DIRECTORY_NAME = "rooms";
+    public static final String SUBAREAS_DIRECTORY_NAME = "_subareas"; // NEW
     public static final String AMBIANCES_DIRECTORY_NAME = "ambiances";
     public static final String OBJECTS_DIRECTORY_NAME = "objects";
     public static final String NPCS_DIRECTORY_NAME = "npcs";

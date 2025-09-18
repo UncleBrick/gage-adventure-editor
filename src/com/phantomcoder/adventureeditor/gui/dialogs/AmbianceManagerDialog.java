@@ -105,6 +105,7 @@ public class AmbianceManagerDialog extends JDialog {
         dialog.setEventData(new AmbianceEvent(),
                 currentRoom.getLocationName(),
                 currentRoom.getAreaName(),
+                currentRoom.getSubAreaName(),
                 currentRoom.getRoomName(),
                 this.events);
 
@@ -130,6 +131,7 @@ public class AmbianceManagerDialog extends JDialog {
             dialog.setEventData(selectedEvent,
                     currentRoom.getLocationName(),
                     currentRoom.getAreaName(),
+                    currentRoom.getSubAreaName(),
                     currentRoom.getRoomName(),
                     this.events);
 
@@ -160,3 +162,4 @@ public class AmbianceManagerDialog extends JDialog {
         setVisible(false);
     }
 }
+

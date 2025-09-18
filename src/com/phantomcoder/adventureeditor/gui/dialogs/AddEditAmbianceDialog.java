@@ -1,5 +1,6 @@
 package com.phantomcoder.adventureeditor.gui.dialogs;
 
+import com.phantomcoder.adventureeditor.constants.AppConstants;
 import com.phantomcoder.adventureeditor.constants.AmbianceFlagConstants;
 import com.phantomcoder.adventureeditor.constants.FieldDefaults;
 import com.phantomcoder.adventureeditor.constants.LayoutConstants;
@@ -8,6 +9,7 @@ import com.phantomcoder.adventureeditor.gui.panels.WrappingPanel;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
 import com.phantomcoder.adventureeditor.service.AmbianceCreationService;
 import com.phantomcoder.adventureeditor.util.PathUtil;
+import com.phantomcoder.adventureeditor.util.UiHelper;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -41,6 +43,7 @@ public class AddEditAmbianceDialog extends JDialog {
     private boolean saved = false;
     private String locationName;
     private String areaName;
+    private String subAreaName;
     private String roomName;
     private List<AmbianceEvent> existingEvents;
 
@@ -126,38 +129,39 @@ public class AddEditAmbianceDialog extends JDialog {
     }
 
     private void updateFinalIdPreview() {
-        String vanityOrHash;
-        // NEW LOGIC: Check if the custom ID box is selected.
-        if (useCustomIdCheckBox.isSelected()) {
-            // If yes, sanitize the custom ID text to create the vanity ID.
-            vanityOrHash = PathUtil.toSafeFileName(customIdField.getText());
-            if (vanityOrHash.isEmpty()) {
-                vanityOrHash = "custom"; // Provide a default if empty
+        String vanityOrSlug;
+        try {
+            if (useCustomIdCheckBox.isSelected()) {
+                vanityOrSlug = PathUtil.toSafeFileName(customIdField.getText());
+                if (vanityOrSlug.isEmpty()) {
+                    vanityOrSlug = "custom";
+                }
+            } else {
+                vanityOrSlug = AmbianceCreationService.generateSlugFromDescription(descriptiveTextField.getText());
             }
-        } else {
-            // If no, generate a hash from the descriptive text (original behavior).
-            vanityOrHash = AmbianceCreationService.generateContentHash(descriptiveTextField.getText());
-        }
 
-        String previewId = AmbianceCreationService.generateFullId(
-                locationName, areaName, roomName, vanityOrHash, null // No need to check for duplicates in a live preview
-        );
-        finalIdField.setText(previewId.substring(0, previewId.length() - 3)); // Show without variant for preview
+            String previewId = AmbianceCreationService.generateFullId(
+                    locationName, areaName, subAreaName, roomName, vanityOrSlug, null
+            );
+            finalIdField.setText(previewId.substring(0, previewId.length() - 3));
+        } catch (IllegalArgumentException e) {
+            finalIdField.setText("Description too short...");
+        }
     }
 
-    public void setEventData(AmbianceEvent event, String loc, String area, String room, List<AmbianceEvent> existing) {
+    public void setEventData(AmbianceEvent event, String loc, String area, String subArea, String room, List<AmbianceEvent> existing) {
         this.event = event;
         this.locationName = loc;
         this.areaName = area;
+        this.subAreaName = subArea;
         this.roomName = room;
         this.existingEvents = existing;
 
         boolean isEditMode = (event != null && event.getGuid() != null && !event.getGuid().isEmpty());
-
         if (isEditMode) {
-            boolean hasCustomId = event.getId() != null && !event.getId().contains(AmbianceCreationService.generateContentHash(event.getText()));
-            useCustomIdCheckBox.setSelected(hasCustomId);
-            customIdField.setText(""); // User can re-enter if they wish to change it
+            boolean isOldFormat = event.getId() != null && !event.getId().startsWith("ambtxt_");
+            useCustomIdCheckBox.setSelected(!isOldFormat);
+            customIdField.setText("");
         } else {
             useCustomIdCheckBox.setSelected(false);
         }
@@ -166,7 +170,6 @@ public class AddEditAmbianceDialog extends JDialog {
         descriptiveTextField.setText(event.getText());
         frequencySpinner.setValue(event.getFrequency());
         flagsPanel.setSelectedFlags(event.getFlags());
-
         customIdField.setEnabled(useCustomIdCheckBox.isSelected());
         updateFinalIdPreview();
     }
@@ -180,6 +183,23 @@ public class AddEditAmbianceDialog extends JDialog {
     }
 
     private void onSave() {
+        String description = descriptiveTextField.getText();
+
+        String vanityOrSlug;
+        try {
+            if (useCustomIdCheckBox.isSelected()) {
+                vanityOrSlug = PathUtil.toSafeFileName(customIdField.getText());
+                if (vanityOrSlug.isEmpty()) {
+                    vanityOrSlug = "custom";
+                }
+            } else {
+                vanityOrSlug = AmbianceCreationService.generateSlugFromDescription(description);
+            }
+        } catch (IllegalArgumentException e) {
+            UiHelper.showErrorDialog(this, "Validation Error", e.getMessage());
+            return;
+        }
+
         if (event == null) {
             event = new AmbianceEvent();
         }
@@ -188,26 +208,12 @@ public class AddEditAmbianceDialog extends JDialog {
             event.setGuid(UUID.randomUUID().toString());
         }
 
-        String vanityOrHash;
-        // NEW LOGIC: Replicate the preview logic for the final save operation.
-        if (useCustomIdCheckBox.isSelected()) {
-            // If yes, sanitize the custom ID text.
-            vanityOrHash = PathUtil.toSafeFileName(customIdField.getText());
-            if (vanityOrHash.isEmpty()) {
-                // You may want to show an error here, but for now, we'll use a default.
-                vanityOrHash = "custom";
-            }
-        } else {
-            // If no, generate a hash from the descriptive text.
-            vanityOrHash = AmbianceCreationService.generateContentHash(descriptiveTextField.getText());
-        }
-
         String finalId = AmbianceCreationService.generateFullId(
-                locationName, areaName, roomName, vanityOrHash, existingEvents
+                locationName, areaName, subAreaName, roomName, vanityOrSlug, existingEvents
         );
         event.setId(finalId);
 
-        event.setText(descriptiveTextField.getText());
+        event.setText(description);
         event.setFrequency((Integer) frequencySpinner.getValue());
         event.setFlags(flagsPanel.getSelectedFlags());
 

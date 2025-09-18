@@ -17,6 +17,7 @@ public final class FieldDefaults {
     public static final int MAX_LONG_DESC_CHARS = 1024;
 
     // Text Component Column/Row Counts
+    public static final int METADATA_FIELD_COLUMNS = 15; // NEW
     public static final int OBJECT_NAME_COLUMNS = 15;
     public static final int OBJECT_SHORT_DESC_COLUMNS = 15;
     public static final int OBJECT_LONG_DESC_ROWS = 4;

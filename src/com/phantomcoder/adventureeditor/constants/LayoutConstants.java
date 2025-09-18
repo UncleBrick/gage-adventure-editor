@@ -15,17 +15,16 @@ public final class LayoutConstants {
     public static final Insets DEFAULT_PADDING = new Insets(5, 5, 5, 5);
     public static final Insets FIELD_PADDING = new Insets(2, 5, 2, 5);
     public static final Insets DIALOG_FIELD_PADDING = new Insets(2, 2, 2, 2);
-    public static final Insets TOOLBAR_BUTTON_MARGIN = new Insets(2, 5, 2, 5); // NEW
+    public static final Insets TOOLBAR_BUTTON_MARGIN = new Insets(2, 5, 2, 5);
 
     // --- Grid Layouts ---
     public static final int ACTIONS_PANEL_ROWS = 1;
     public static final int ACTIONS_PANEL_COLS = 3;
     public static final int OBJECTS_BUTTON_GRID_ROWS = 5;
     public static final int OBJECTS_BUTTON_GRID_COLS = 1;
+    public static final double METADATA_PANEL_COLUMN_WEIGHT = 0.25; // NEW
 
-    // --- FIX: New constants to eliminate magic numbers ---
-
-    // For the vertical JSplitPane in the RoomEditorPanel
+    // --- JSplitPane ---
     public static final double ROOM_EDITOR_SPLIT_PANE_RESIZE_WEIGHT = .005;
     public static final double ROOM_EDITOR_DIVIDER_LOCATION = .5;
 

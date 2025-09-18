@@ -1,0 +1,31 @@
+{
+  "file_type": "Ambiance Data",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "ambtxt_graymere_the_great_city_of_eldermyre_the_laughing_anvil_entrance_to_the_laughing_anvil_smoke_pipeweed_hangs_thick_00",
+      "guid": "1d3d8907-39f7-497c-b067-4d846daba0ad",
+      "text": "The smoke of pipeweed hangs thick in the rafters, curling with the scent of spiced herbs.",
+      "frequency": 0,
+      "flags": [
+        "NIGHT",
+        "EVENING",
+        "AFTERNOON"
+      ]
+    },
+    {
+      "id": "ambtxt_graymere_the_great_city_of_eldermyre_the_laughing_anvil_entrance_to_the_laughing_anvil_bards_lute_drifts_above_00",
+      "guid": "98077d2f-8417-46f7-9848-d08fb94aed40",
+      "text": "A bard’s lute drifts above the clatter of mugs and the rumble of drunken laughter.",
+      "frequency": 0,
+      "flags": []
+    },
+    {
+      "id": "ambtxt_graymere_the_great_city_of_eldermyre_the_laughing_anvil_entrance_to_the_laughing_anvil_floorboards_groan_beneath_weight_00",
+      "guid": "77b5c1c4-c14d-4312-9480-92cf7011fa55",
+      "text": "The floorboards groan beneath the weight of heavy boots and stumbling patrons.",
+      "frequency": 0,
+      "flags": []
+    }
+  ]
+}

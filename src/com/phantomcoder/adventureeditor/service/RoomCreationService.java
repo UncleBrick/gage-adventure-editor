@@ -16,6 +16,7 @@ public class RoomCreationService {
      *
      * @param location The location name.
      * @param area The area name.
+     * @param subArea The optional sub-area name.
      * @param roomName The room's proper name.
      * @param shortDesc The short description.
      * @param longDesc The long description.
@@ -23,7 +24,7 @@ public class RoomCreationService {
      * @return A populated and validated RoomData object.
      * @throws IllegalArgumentException if any validation fails.
      */
-    public RoomData createRoom(String location, String area, String roomName,
+    public RoomData createRoom(String location, String area, String subArea, String roomName,
                                String shortDesc, String longDesc, Set<String> tags) {
 
         // Step 1: Create an empty RoomData object.
@@ -32,6 +33,7 @@ public class RoomCreationService {
         // Step 2: Use the public setter methods to populate the object's fields.
         newRoom.setLocationName(location);
         newRoom.setAreaName(area);
+        newRoom.setSubAreaName(subArea);
         newRoom.setRoomName(roomName);
         newRoom.setShortDescription(shortDesc);
         newRoom.setLongDescription(longDesc);

@@ -1,0 +1,20 @@
+{
+  "file_type": "Ambiance Data",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "ambtxt_graymere_the_great_city_of_eldermyre_elddermyre_towne_center_hawker_calls_out_fresh_00",
+      "guid": "57900de2-572d-4bc6-a310-316a5d9c6120",
+      "text": "A hawker calls out, “Fresh apples! Sweet as honey, ripe as summer!”",
+      "frequency": 0,
+      "flags": []
+    },
+    {
+      "id": "ambtxt_graymere_the_great_city_of_eldermyre_elddermyre_towne_center_fountains_spray_catches_sun_00",
+      "guid": "882fc05e-95d7-446c-9868-8cf6ec35803e",
+      "text": "The fountain’s spray catches the sun, casting fleeting rainbows over the crowd.",
+      "frequency": 0,
+      "flags": []
+    }
+  ]
+}

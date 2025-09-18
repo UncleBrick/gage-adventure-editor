@@ -1,45 +1,46 @@
 package com.phantomcoder.adventureeditor.service;
 
 import com.phantomcoder.adventureeditor.constants.AppConstants;
+import com.phantomcoder.adventureeditor.constants.TextProcessingConstants;
 import com.phantomcoder.adventureeditor.model.AmbianceEvent;
 import com.phantomcoder.adventureeditor.util.PathUtil;
-
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class AmbianceCreationService {
 
     private AmbianceCreationService() {}
 
-    public static String generateContentHash(String descriptiveText) {
-        if (descriptiveText == null || descriptiveText.trim().isEmpty()) {
-            return "empty";
+    public static String generateSlugFromDescription(String description) {
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be empty.");
         }
 
-        String[] words = descriptiveText.trim().split("\\s+");
-        StringBuilder hashBuilder = new StringBuilder();
+        String[] words = description.trim().toLowerCase().replaceAll("[^a-z0-9\\s]", "").split("\\s+");
 
-        int limit = Math.min(words.length, AppConstants.AMBIANCE_HASH_LENGTH);
-        for (int i = 0; i < limit; i++) {
-            if (!words[i].isEmpty()) {
-                hashBuilder.append(words[i].charAt(0));
-            }
+        if (words.length < AppConstants.MIN_DESC_WORDS_FOR_SLUG) {
+            throw new IllegalArgumentException("Description must be at least " + AppConstants.MIN_DESC_WORDS_FOR_SLUG + " words.");
         }
 
-        while (hashBuilder.length() < AppConstants.AMBIANCE_HASH_LENGTH) {
-            char randomChar = (char) ThreadLocalRandom.current().nextInt('a', 'z' + 1);
-            hashBuilder.append(randomChar);
-        }
-
-        return hashBuilder.toString().toLowerCase();
+        return Arrays.stream(words)
+                .filter(word -> !TextProcessingConstants.STOP_WORDS.contains(word))
+                .limit(AppConstants.SLUG_WORD_COUNT)
+                .collect(Collectors.joining("_"));
     }
 
-    public static String generateFullId(String location, String area, String roomName, String vanityOrHash, List<AmbianceEvent> existingEvents) {
+    public static String generateFullId(String location, String area, String subArea, String roomName, String vanityOrSlug, List<AmbianceEvent> existingEvents) {
         String safeLocation = PathUtil.toSafeFileName(location);
         String safeArea = PathUtil.toSafeFileName(area);
+        String safeSubArea = PathUtil.toSafeFileName(subArea);
         String safeRoomName = PathUtil.toSafeFileName(roomName);
 
-        String baseId = String.format("ambtxt_%s_%s_%s_%s", safeLocation, safeArea, safeRoomName, vanityOrHash);
+        String baseId;
+        if (safeSubArea.isEmpty()) {
+            baseId = String.format("ambtxt_%s_%s_%s_%s", safeLocation, safeArea, safeRoomName, vanityOrSlug);
+        } else {
+            baseId = String.format("ambtxt_%s_%s_%s_%s_%s", safeLocation, safeArea, safeSubArea, safeRoomName, vanityOrSlug);
+        }
 
         int variant = 0;
         while (true) {
@@ -61,3 +62,4 @@ public class AmbianceCreationService {
         }
     }
 }
+

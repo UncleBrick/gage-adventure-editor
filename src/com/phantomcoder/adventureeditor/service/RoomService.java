@@ -65,6 +65,7 @@ public class RoomService implements IRoomService {
         Path filePath = persistenceService.getRoomPath(
                 currentRoom.getLocationName(),
                 currentRoom.getAreaName(),
+                currentRoom.getSubAreaName(),
                 topMetaDataPanel.getFileName()
         );
         persistenceService.saveRoomData(currentRoom, filePath);
@@ -80,20 +81,20 @@ public class RoomService implements IRoomService {
         this.currentRoom = loadedRoom;
 
         if (this.currentRoom != null) {
-            // --- DATA MIGRATION LOGIC ---
             if (currentRoom.getAmbianceEvents() != null) {
                 for (AmbianceEvent event : currentRoom.getAmbianceEvents()) {
-                    // Check if the ID is in the old, short format.
                     if (event.getId() != null && !event.getId().startsWith("ambtxt_")) {
+                        // CORRECTED: Pass all necessary fields to the ID generation method
                         String newFullId = AmbianceCreationService.generateFullId(
                                 currentRoom.getLocationName(),
                                 currentRoom.getAreaName(),
+                                currentRoom.getSubAreaName(), // The missing argument
                                 currentRoom.getRoomName(),
-                                event.getId(), // The old ID is the content hash
+                                event.getText(),
                                 currentRoom.getAmbianceEvents()
                         );
                         event.setId(newFullId);
-                        dataWasUpgraded = true; // Signal that a change was made.
+                        dataWasUpgraded = true;
                     }
                 }
             }
@@ -109,6 +110,7 @@ public class RoomService implements IRoomService {
         }
         currentRoom.setLocationName(topMetaDataPanel.getLocationName());
         currentRoom.setAreaName(topMetaDataPanel.getAreaName());
+        currentRoom.setSubAreaName(topMetaDataPanel.getSubAreaName());
         currentRoom.setRoomName(middleDataPanel.getRoomName());
         currentRoom.setShortDescription(middleDataPanel.getShortDescription());
         currentRoom.setLongDescription(longDescriptionPanel.getLongDescription());
@@ -122,6 +124,7 @@ public class RoomService implements IRoomService {
         }
         topMetaDataPanel.setLocationName(currentRoom.getLocationName());
         topMetaDataPanel.setAreaName(currentRoom.getAreaName());
+        topMetaDataPanel.setSubAreaName(currentRoom.getSubAreaName());
 
         String fileName = (savedRoomFilePath != null) ? savedRoomFilePath.getFileName().toString() : "";
         topMetaDataPanel.setFileName(fileName);
@@ -132,3 +135,4 @@ public class RoomService implements IRoomService {
         longDescriptionPanel.setLongDescription(currentRoom.getLongDescription());
     }
 }
+

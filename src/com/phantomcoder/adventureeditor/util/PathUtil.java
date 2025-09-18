@@ -1,7 +1,6 @@
 package com.phantomcoder.adventureeditor.util;
 
 import com.phantomcoder.adventureeditor.constants.DataConstants;
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -35,7 +34,8 @@ public final class PathUtil {
 
     /**
      * Calculates the path for a parallel data file by replacing the data type directory
-     * in the source path, keeping the filename identical.
+     * in the source path, keeping the filename identical. This is now robust enough
+     * to handle nested sub-area directories.
      *
      * @param sourcePath       The full path to the source file (e.g., .../rooms/00_00_00.json).
      * @param sourceDataTypeKey The key for the source data type in DataConstants (e.g., "ROOMS").
@@ -45,24 +45,33 @@ public final class PathUtil {
      */
     public static Path getParallelPath(Path sourcePath, String sourceDataTypeKey, String targetDataTypeKey) {
         // 1. Look up directory names from constants
-        String sourceDir = DataConstants.DATA_DIRECTORIES.get(sourceDataTypeKey);
-        String targetDir = DataConstants.DATA_DIRECTORIES.get(targetDataTypeKey);
+        String sourceDirName = DataConstants.DATA_DIRECTORIES.get(sourceDataTypeKey);
+        String targetDirName = DataConstants.DATA_DIRECTORIES.get(targetDataTypeKey);
 
-        if (sourceDir == null || targetDir == null) {
+        if (sourceDirName == null || targetDirName == null) {
             throw new IllegalArgumentException("Invalid source or target data type key provided.");
         }
 
-        // 2. Prepare directory segments for replacement
-        String sourcePathStr = sourcePath.toString();
-        String sourceDirSegment = File.separator + sourceDir + File.separator;
-        String targetDirSegment = File.separator + targetDir + File.separator;
-
-        if (!sourcePathStr.contains(sourceDirSegment)) {
-            throw new IllegalArgumentException("Source path does not contain the expected directory segment: " + sourceDirSegment);
+        // 2. Get the parent directory of the source file. This is the data type directory.
+        Path sourceDataTypeDir = sourcePath.getParent();
+        if (sourceDataTypeDir == null || !sourceDataTypeDir.getFileName().toString().equals(sourceDirName)) {
+            throw new IllegalArgumentException("Source path does not appear to be in a valid '" + sourceDirName + "' directory.");
         }
 
-        // 3. Replace the directory segment and return the new Path
-        String targetPathStr = sourcePathStr.replace(sourceDirSegment, targetDirSegment);
-        return Paths.get(targetPathStr);
+        // 3. Get the parent of that directory. This is the common root path
+        //    (e.g., data/location/area/ or data/location/area/sub_area/)
+        Path commonRoot = sourceDataTypeDir.getParent();
+        if (commonRoot == null) {
+            throw new IllegalArgumentException("Could not determine a common root path from the source.");
+        }
+
+        // 4. Get the original filename.
+        Path fileName = sourcePath.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("Could not extract a filename from the source path.");
+        }
+
+        // 5. Construct the new path from the common root, the target directory, and the filename.
+        return commonRoot.resolve(targetDirName).resolve(fileName);
     }
 }

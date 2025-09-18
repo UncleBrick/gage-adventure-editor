@@ -1,0 +1,74 @@
+Folder PATH listing
+Volume serial number is 2683-2A66
+C:.
+|   tree.txt
+|   
++---data
+|   +---location_name
+|   |   \---area_name
+|   |       +---ambiances
+|   |       |       file_name.json
+|   |       |       
+|   |       \---rooms
+|   |               file_name.json
+|   |               
+|   +---tonys
+|   |   \---junk_yard
+|   |       \---rooms
+|   |               car.json
+|   |               crusher.json
+|   |               dog.json
+|   |               
+|   +---wer
+|   |   \---tyu
+|   |       \---rooms
+|   |               iop.json
+|   |               
+|   \---wtf_location
+|       \---wtf_area
+|           +---ambiances
+|           |       wtf_file_name.json
+|           |       
+|           \---rooms
+|                   wtf_file_name.json
+|                   
+\---icons
+    |   gage_icon.png
+    |   
+    \---menu
+        +---disabled
+        |       about_16.png
+        |       close_16.png
+        |       configure_16.png
+        |       exit_16.png
+        |       help_16.png
+        |       load_16.png
+        |       new_16.png
+        |       preview_16.png
+        |       save_16.png
+        |       save_as_16.png
+        |       
+        +---hot
+        |       about_16.png
+        |       close_16.png
+        |       configure_16.png
+        |       exit_16.png
+        |       help_16.png
+        |       load_16.png
+        |       new_16.png
+        |       preview_16.png
+        |       save_16.png
+        |       save_as_16.png
+        |       
+        \---normal
+                about_16.png
+                close_16.png
+                configure_16.png
+                exit_16.png
+                help_16.png
+                load_16.png
+                new_16.png
+                preview_16.png
+                save_16.png
+                save_as_16.png
+                

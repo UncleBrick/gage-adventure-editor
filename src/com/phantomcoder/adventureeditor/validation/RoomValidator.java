@@ -1,6 +1,6 @@
 package com.phantomcoder.adventureeditor.validation;
 
-import com.phantomcoder.adventureeditor.constants.FieldDefaults; // Assuming you move limits here
+import com.phantomcoder.adventureeditor.constants.FieldDefaults;
 import com.phantomcoder.adventureeditor.model.RoomData;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,13 @@ public class RoomValidator {
             errors.add("Area Name cannot be empty.");
         }
 
+        // Validate Sub-Area Name (Optional, but check length if present)
+        if (room.getSubAreaName() != null && !room.getSubAreaName().trim().isEmpty()) {
+            if (room.getSubAreaName().trim().length() > FieldDefaults.MAX_AREA_NAME_CHARS) {
+                errors.add("Sub-Area Name exceeds the maximum length of " + FieldDefaults.MAX_AREA_NAME_CHARS + " characters.");
+            }
+        }
+
         // Validate Room Name
         if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
             errors.add("Room Name cannot be empty.");
@@ -45,8 +52,6 @@ public class RoomValidator {
         } else if (room.getLongDescription().trim().length() > FieldDefaults.MAX_LONG_DESC_CHARS) {
             errors.add("Long Description exceeds the maximum length of " + FieldDefaults.MAX_LONG_DESC_CHARS + " characters.");
         }
-
-        // Note: Validation for room tags (e.g., must have at least one) could be added here if needed.
 
         return errors;
     }
